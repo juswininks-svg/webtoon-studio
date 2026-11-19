@@ -1,0 +1,3909 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATELIER SEOUL // Professional Webtoon Creation Studio</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Comic+Neue:ital,wght@0,700;1,700&family=Playfair+Display:ital,wght@0,600;1,600&family=JetBrains+Mono:wght@400;500&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          obsidian: '#111114',
+          charcoal: '#18181d',
+          slatepanel: '#222229',
+          panelborder: '#2e2e38',
+          lavender: '#b8a1e3',
+          lavenderdim: '#8b74b8',
+          blush: '#e8a4b8',
+          blushdim: '#b8768a',
+        },
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace'],
+          comic: ['Comic Neue', 'cursive'],
+          serif: ['Playfair Display', 'serif'],
+          hand: ['Nanum Pen Script', 'cursive'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  * { box-sizing: border-box; user-select: none; }
+  input, textarea, select { user-select: text; }
+  body {
+    background-color: #111114;
+    color: #e4e4ec;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Custom Slim Scrollbars */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #141418; }
+  ::-webkit-scrollbar-thumb { background: #33333f; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #b8a1e3; }
+
+  /* Studio Range Sliders */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #2b2b35;
+    height: 4px;
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #b8a1e3;
+    cursor: pointer;
+    border: 1.5px solid #111114;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    background: #e8a4b8;
+    transform: scale(1.2);
+  }
+
+  /* Checkerboard transparency pattern */
+  .checkerboard {
+    background-color: #1c1c22;
+    background-image: linear-gradient(45deg, #25252d 25%, transparent 25%),
+      linear-gradient(-45deg, #25252d 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #25252d 75%),
+      linear-gradient(-45deg, transparent 75%, #25252d 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+  }
+
+  .tool-btn.active {
+    background: linear-gradient(135deg, rgba(184,161,227,0.22), rgba(232,164,184,0.18));
+    border-color: #b8a1e3;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(184, 161, 227, 0.2);
+  }
+
+  .tab-btn.active {
+    color: #b8a1e3;
+    border-bottom: 2px solid #b8a1e3;
+    background: rgba(184, 161, 227, 0.06);
+  }
+
+  .mode-pill.active {
+    background: #b8a1e3;
+    color: #111114;
+    font-weight: 600;
+  }
+
+  .brush-card.active {
+    border-color: #e8a4b8;
+    background: rgba(232, 164, 184, 0.12);
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+  .autosave-dot { animation: pulseGlow 2.4s infinite; }
+</style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden text-xs">
+
+  <!-- ==================== 1. TOP APPLICATION BAR ==================== -->
+  <header class="h-11 bg-charcoal border-b border-panelborder flex items-center justify-between px-3 shrink-0 z-30">
+    <!-- Left: Studio Brand + Editable Project & Episode -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 pr-2 border-r border-panelborder">
+        <div class="w-6 h-6 rounded bg-gradient-to-br from-lavender to-blush flex items-center justify-center text-obsidian font-bold text-xs shadow">
+          ୨ৎ
+        </div>
+        <div class="leading-tight">
+          <div class="font-bold tracking-wider text-[11px] text-white">ATELIER SEOUL</div>
+          <div class="text-[9px] text-lavender tracking-widest uppercase">Webtoon Studio</div>
+        </div>
+      </div>
+
+      <!-- Project & Episode Titles -->
+      <div class="flex items-center gap-1.5 bg-obsidian/70 px-2 py-1 rounded border border-panelborder">
+        <input id="projectTitleInput" type="text" value="Midnight Cherry Blossoms"
+          class="bg-transparent text-white font-medium text-xs w-36 focus:outline-none focus:text-lavender"
+          title="Edit Series / Project Title" />
+        <span class="text-gray-500">/</span>
+        <input id="episodeTitleInput" type="text" value="Ep. 01 — Rain at Gangnam Station"
+          class="bg-transparent text-blush font-medium text-xs w-44 focus:outline-none focus:text-white"
+          title="Edit Episode Title" />
+      </div>
+
+      <!-- Autosave Indicator -->
+      <div id="autosaveStatus" class="flex items-center gap-1.5 text-[10px] text-gray-400 px-2 py-0.5 rounded bg-slatepanel/60">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 autosave-dot"></span>
+        <span>Saved locally</span>
+      </div>
+    </div>
+
+    <!-- Center: Workspace Mode Switcher -->
+    <nav class="flex items-center bg-obsidian p-0.5 rounded-md border border-panelborder gap-0.5" id="workspaceSwitcher">
+      <button data-mode="studio" class="mode-pill active px-2.5 py-1 rounded text-[11px] transition">Illustration Studio</button>
+      <button data-mode="storyboard" class="mode-pill px-2.5 py-1 rounded text-[11px] text-gray-300 hover:text-white transition">Storyboard</button>
+      <button data-mode="pose3d" class="mode-pill px-2.5 py-1 rounded text-[11px] text-gray-300 hover:text-white transition">3D Pose Studio</button>
+      <button data-mode="character" class="mode-pill px-2.5 py-1 rounded text-[11px] text-gray-300 hover:text-white transition">Character Lab</button>
+      <button data-mode="academy" class="mode-pill px-2.5 py-1 rounded text-[11px] text-gray-300 hover:text-white transition">Beginner Academy</button>
+      <button data-mode="reader" class="mode-pill px-2.5 py-1 rounded text-[11px] text-gray-300 hover:text-white transition">Webtoon Scroll Preview</button>
+    </nav>
+
+    <!-- Right: History, Rulers, Zoom, Export -->
+    <div class="flex items-center gap-2">
+      <!-- Undo / Redo + History Dropdown -->
+      <div class="flex items-center bg-slatepanel rounded border border-panelborder">
+        <button id="undoBtn" class="px-2 py-1 hover:text-lavender disabled:opacity-30" title="Undo (Ctrl+Z)">↶</button>
+        <button id="redoBtn" class="px-2 py-1 hover:text-lavender border-l border-panelborder disabled:opacity-30" title="Redo (Ctrl+Y)">↷</button>
+        <div class="relative">
+          <button id="historyDropdownBtn" class="px-1.5 py-1 hover:text-blush border-l border-panelborder text-[10px]" title="Action History">▾</button>
+          <div id="historyDropdown" class="hidden absolute right-0 top-7 w-52 bg-charcoal border border-panelborder rounded shadow-xl p-2 z-50">
+            <div class="text-[10px] font-semibold text-lavender uppercase tracking-wider mb-1">Action History</div>
+            <div id="historyList" class="max-h-40 overflow-y-auto space-y-1 text-[11px] text-gray-300"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Perspective Guides Toggle -->
+      <div class="flex items-center bg-slatepanel rounded border border-panelborder text-[10px]" title="Perspective & Symmetry Rulers">
+        <button data-persp="none" class="persp-btn px-1.5 py-1 rounded-l bg-lavender/20 text-lavender font-semibold">Off</button>
+        <button data-persp="1pt" class="persp-btn px-1.5 py-1 border-l border-panelborder hover:text-white">1-Pt</button>
+        <button data-persp="2pt" class="persp-btn px-1.5 py-1 border-l border-panelborder hover:text-white">2-Pt</button>
+        <button data-persp="sym" class="persp-btn px-1.5 py-1 rounded-r border-l border-panelborder hover:text-white">Sym</button>
+      </div>
+
+      <!-- Zoom Controls -->
+      <div class="flex items-center gap-1.5 bg-slatepanel px-2 py-1 rounded border border-panelborder">
+        <button id="zoomOutBtn" class="text-gray-400 hover:text-white font-bold">−</button>
+        <span id="zoomLabel" class="font-mono text-[10px] w-9 text-center text-lavender">85%</span>
+        <button id="zoomInBtn" class="text-gray-400 hover:text-white font-bold">+</button>
+        <button id="zoomFitBtn" class="text-[9px] text-gray-400 hover:text-blush ml-1" title="Fit Canvas">FIT</button>
+      </div>
+
+      <!-- Download HTML Studio File -->
+      <button id="downloadStudioHtmlBtn" class="px-2 py-1 rounded bg-slatepanel hover:bg-panelborder border border-panelborder text-[11px] text-gray-200 transition" title="Download Standalone HTML Studio">
+        ⬇ HTML
+      </button>
+
+      <!-- Export HD PDF / Episode -->
+      <button id="openExportBtn" class="px-3 py-1 rounded bg-gradient-to-r from-lavender to-blush text-obsidian font-semibold text-[11px] hover:opacity-95 shadow transition flex items-center gap-1">
+        <span>Export HD PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== 2. MAIN STUDIO BODY ==================== -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- LEFT VERTICAL TOOLBAR -->
+    <aside class="w-12 bg-charcoal border-r border-panelborder flex flex-col items-center py-2 gap-1 shrink-0 z-20">
+      <button data-tool="select" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Select & Transform Elements (V)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+        <span class="text-[8px] text-gray-500">V</span>
+      </button>
+      <button data-tool="lasso" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Freehand Lasso Selection (L)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22a5 5 0 0 1-2-4c0-3.5 4-6 9-6s9 2.5 9 6-4 6-9 6c-1.5 0-2.9-.2-4-.6"/><circle cx="7" cy="18" r="2"/></svg>
+        <span class="text-[8px] text-gray-500">L</span>
+      </button>
+      <button data-tool="brush" class="tool-btn active w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Webtoon Brush / Pen Engine (B)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+        <span class="text-[8px] text-gray-500">B</span>
+      </button>
+      <button data-tool="eraser" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Precision Eraser (E)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16c-.6-.6-.6-1.5 0-2.1l10-10c.6-.6 1.5-.6 2.1 0l6 6c.6.6.6 1.5 0 2.1L13 20"/></svg>
+        <span class="text-[8px] text-gray-500">E</span>
+      </button>
+      <button data-tool="fill" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Smart Bucket Fill (G)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11l-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11z"/><path d="M5 2l5 5"/><path d="M20 16s2 2.2 2 3.5a2 2 0 0 1-4 0c0-1.3 2-3.5 2-3.5z"/></svg>
+        <span class="text-[8px] text-gray-500">G</span>
+      </button>
+      <button data-tool="eyedropper" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Colour Eyedropper (I)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22l1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="M15 6l3-3 3 3-3 3"/></svg>
+        <span class="text-[8px] text-gray-500">I</span>
+      </button>
+
+      <div class="w-6 border-t border-panelborder my-0.5"></div>
+
+      <button data-tool="panel" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Panel Frame Cutter / Composer (P)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="10"/></svg>
+        <span class="text-[8px] text-gray-500">P</span>
+      </button>
+      <button data-tool="bubble" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Vector Speech Bubble Tool (S)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span class="text-[8px] text-gray-500">S</span>
+      </button>
+      <button data-tool="text" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Dialogue & SFX Lettering (T)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <span class="text-[8px] text-gray-500">T</span>
+      </button>
+      <button data-tool="shape" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Geometric & Speedline Shape Tool (U)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 19 21 12 17 5 21 12 2"/></svg>
+        <span class="text-[8px] text-gray-500">U</span>
+      </button>
+      <button data-tool="hand" class="tool-btn w-9 h-9 rounded border border-transparent flex flex-col items-center justify-center hover:bg-slatepanel text-gray-300" title="Hand Pan Canvas (H or Space)">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+        <span class="text-[8px] text-gray-500">H</span>
+      </button>
+
+      <!-- Dual Color Swatch Indicator at Bottom of Toolbar -->
+      <div class="mt-auto flex flex-col items-center gap-1.5 pt-2 border-t border-panelborder">
+        <div class="relative w-8 h-8" title="Primary Stroke Color & Secondary Fill Color">
+          <input type="color" id="secondaryColorPicker" value="#ffffff"
+            class="absolute bottom-0 right-0 w-5 h-5 rounded cursor-pointer border border-gray-500 bg-transparent" title="Secondary / Bubble Fill Color" />
+          <input type="color" id="primaryColorPicker" value="#1e1b29"
+            class="absolute top-0 left-0 w-5 h-5 rounded cursor-pointer border border-lavender bg-transparent z-10" title="Primary / Stroke Color" />
+        </div>
+        <button id="swapColorsBtn" class="text-[10px] text-gray-400 hover:text-lavender" title="Swap Colors (X)">⇄</button>
+      </div>
+    </aside>
+
+    <!-- CENTRAL WORKSPACE AREA -->
+    <main class="flex-1 flex flex-col bg-obsidian relative overflow-hidden">
+
+      <!-- Contextual Top Sub-Toolbar (Dynamic per active tool) -->
+      <div id="contextSubBar" class="h-8 bg-charcoal/90 border-b border-panelborder px-3 flex items-center justify-between text-[11px] shrink-0 z-10">
+        <div class="flex items-center gap-4">
+          <span id="activeToolBadge" class="px-2 py-0.5 rounded bg-lavender/15 text-lavender font-semibold">Brush: Korean G-Pen</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-gray-400">Size:</span>
+            <input id="quickSizeSlider" type="range" min="1" max="120" value="6" class="w-20" />
+            <span id="quickSizeVal" class="font-mono text-gray-200 w-7">6px</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-gray-400">Opacity:</span>
+            <input id="quickOpacitySlider" type="range" min="5" max="100" value="100" class="w-20" />
+            <span id="quickOpacityVal" class="font-mono text-gray-200 w-8">100%</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-gray-400">Stabilizer:</span>
+            <input id="quickStabSlider" type="range" min="0" max="10" value="5" class="w-16" />
+            <span id="quickStabVal" class="font-mono text-gray-200 w-4">5</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
+            <input id="toggleGridCheck" type="checkbox" class="accent-lavender" />
+            <span>Grid</span>
+          </label>
+          <label class="flex items-center gap-1 text-gray-400 hover:text-white cursor-pointer">
+            <input id="toggleRulersCheck" type="checkbox" checked class="accent-lavender" />
+            <span>Rulers</span>
+          </label>
+          <label class="flex items-center gap-1 text-blush hover:text-white cursor-pointer">
+            <input id="toggle3DOverlayCheck" type="checkbox" class="accent-blush" />
+            <span>3D Pose Tracing Guide</span>
+          </label>
+          <button id="clearLayerBtn" class="px-2 py-0.5 rounded bg-slatepanel hover:bg-red-950/60 hover:text-red-300 border border-panelborder text-[10px]">Clear Active Layer</button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: ILLUSTRATION STUDIO CANVAS -->
+      <div id="view-studio" class="flex-1 relative overflow-hidden flex items-center justify-center bg-[#0d0d10]">
+        <!-- Top & Left Canvas Rulers -->
+        <canvas id="topRuler" class="absolute top-0 left-5 right-0 h-5 bg-charcoal border-b border-panelborder z-10 pointer-events-none"></canvas>
+        <canvas id="leftRuler" class="absolute top-5 left-0 bottom-0 w-5 bg-charcoal border-r border-panelborder z-10 pointer-events-none"></canvas>
+        <div class="absolute top-0 left-0 w-5 h-5 bg-charcoal border-r border-b border-panelborder z-10 flex items-center justify-center text-[8px] text-gray-500">px</div>
+
+        <!-- Viewport Wrapper -->
+        <div id="canvasViewport" class="w-full h-full flex items-center justify-center overflow-hidden relative cursor-crosshair">
+          <div id="canvasStage" class="relative shadow-2xl transition-transform duration-75" style="width: 800px; height: 1120px;">
+            <!-- Multi-Layer Composite Canvas -->
+            <canvas id="compositeCanvas" width="800" height="1120" class="block bg-white rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.85)]"></canvas>
+            <!-- Interactive Overlay Canvas (Selection boxes, Speech Bubble handles, Perspective lines, 3D Tracing Ghost, Academy Guides) -->
+            <canvas id="overlayCanvas" width="800" height="1120" class="absolute inset-0 pointer-events-none"></canvas>
+          </div>
+        </div>
+
+        <!-- Floating Bubble / Text Quick Inspector (Appears when a bubble or text is selected) -->
+        <div id="floatingObjectInspector" class="hidden absolute bottom-4 left-8 bg-charcoal/95 backdrop-blur border border-lavender/50 rounded-lg p-2.5 shadow-2xl z-20 w-80 space-y-2">
+          <div class="flex items-center justify-between border-b border-panelborder pb-1">
+            <span class="text-[11px] font-semibold text-lavender" id="selectedObjTitle">Speech Bubble Properties</span>
+            <button id="deleteSelectedObjBtn" class="text-[10px] text-red-400 hover:text-red-300">Delete</button>
+          </div>
+          <textarea id="selectedObjText" rows="2" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-xs text-white focus:outline-none focus:border-lavender" placeholder="Enter dialogue or SFX text..."></textarea>
+          <div class="grid grid-cols-2 gap-2 text-[10px]">
+            <div>
+              <label class="text-gray-400 block">Bubble Style</label>
+              <select id="selectedBubbleStyle" class="w-full bg-obsidian border border-panelborder rounded px-1.5 py-1 text-white">
+                <option value="oval">Oval Dialogue</option>
+                <option value="cloud">Cloud Thought</option>
+                <option value="jagged">Jagged Shout</option>
+                <option value="narration">Narration Box</option>
+                <option value="whisper">Whisper Dashed</option>
+                <option value="sfx">Floating SFX Text</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 block">Font Family</label>
+              <select id="selectedObjFont" class="w-full bg-obsidian border border-panelborder rounded px-1.5 py-1 text-white">
+                <option value="Comic Neue">Clean Webtoon Comic</option>
+                <option value="Inter">Modern Sans</option>
+                <option value="Playfair Display">Dramatic Serif</option>
+                <option value="Nanum Pen Script">Handwritten Note</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 text-[10px]">
+            <label class="flex items-center gap-1">Fill <input type="color" id="objFillColor" value="#ffffff" class="w-5 h-4 bg-transparent cursor-pointer"></label>
+            <label class="flex items-center gap-1">Outline <input type="color" id="objStrokeColor" value="#18181d" class="w-5 h-4 bg-transparent cursor-pointer"></label>
+            <label class="flex items-center gap-1">Size <input type="number" id="objFontSize" value="18" min="10" max="72" class="w-12 bg-obsidian border border-panelborder rounded px-1 py-0.5 text-white"></label>
+            <label class="flex items-center gap-1">Tail° <input type="number" id="objTailAngle" value="120" min="0" max="360" step="15" class="w-12 bg-obsidian border border-panelborder rounded px-1 py-0.5 text-white"></label>
+          </div>
+        </div>
+
+        <!-- Floating Academy Lesson Guide Banner (When active) -->
+        <div id="academyBanner" class="hidden absolute top-7 left-8 bg-charcoal/95 border border-blush/60 rounded-lg p-3 shadow-2xl z-20 max-w-md">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] uppercase tracking-wider text-blush font-bold" id="academyLessonStepLabel">STEP 1 OF 4</span>
+            <button id="closeAcademyBanner" class="text-gray-400 hover:text-white text-xs">✕</button>
+          </div>
+          <div class="font-semibold text-white text-xs mb-1" id="academyLessonTitle">Constructing Korean Manhwa Head Proportions</div>
+          <p class="text-[11px] text-gray-300 leading-relaxed mb-2" id="academyLessonDesc">Trace over the faint lavender guidelines on the canvas using the G-Pen brush. Start with the cranium circle, then taper the jawline smoothly toward the chin.</p>
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-1.5 text-[10px] text-gray-400">
+              <span>Guide Opacity</span>
+              <input id="academyGuideOpacity" type="range" min="10" max="90" value="45" class="w-20" />
+            </label>
+            <button id="nextAcademyStepBtn" class="px-2.5 py-1 rounded bg-blush text-obsidian font-semibold text-[10px] hover:opacity-90">Next Step →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: STORYBOARD & EPISODE PLANNER -->
+      <div id="view-storyboard" class="hidden flex-1 overflow-y-auto p-5 bg-obsidian">
+        <div class="max-w-6xl mx-auto space-y-4">
+          <div class="flex items-center justify-between border-b border-panelborder pb-3">
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <span class="text-lavender">◈</span> Storyboard & Episode Pacing Studio
+              </h2>
+              <p class="text-xs text-gray-400">Plan camera shots, emotional pacing, dialogue scripts, and send any panel directly to the illustration canvas.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="bg-charcoal border border-panelborder rounded px-3 py-1.5 flex items-center gap-3">
+                <span class="text-[11px] text-gray-400">Episode Pacing Balance:</span>
+                <span id="pacingBadge" class="text-[11px] font-semibold text-emerald-400">Balanced (Dialogue / Visual Mix)</span>
+              </div>
+              <button id="sbAddPanelBtn" class="px-3 py-1.5 rounded bg-lavender text-obsidian font-semibold text-xs hover:opacity-90">+ Add Storyboard Panel</button>
+            </div>
+          </div>
+
+          <!-- Storyboard Grid -->
+          <div id="storyboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+      </div>
+
+      <!-- VIEW 3: 3D CHARACTER & HAND POSE REFERENCE STUDIO -->
+      <div id="view-pose3d" class="hidden flex-1 flex overflow-hidden bg-obsidian">
+        <div class="flex-1 flex flex-col items-center justify-center relative bg-[#0c0c10]">
+          <div class="absolute top-3 left-4 bg-charcoal/85 px-3 py-1.5 rounded border border-panelborder text-[11px] text-gray-300">
+            Drag canvas to orbit 3D mannequin · Adjust joints on the right · Toggle <span class="text-blush font-semibold">3D Pose Tracing Guide</span> on the 2D Canvas
+          </div>
+          <canvas id="pose3DCanvas" width="760" height="620" class="rounded border border-panelborder bg-[#121218] cursor-grab active:cursor-grabbing max-w-full max-h-full"></canvas>
+          <div class="mt-3 flex items-center gap-2">
+            <button id="stampPoseToCanvasBtn" class="px-3 py-1.5 rounded bg-gradient-to-r from-lavender to-blush text-obsidian font-semibold text-xs">
+              Import Construction Lines to Active Layer
+            </button>
+            <button id="enableGhostOverlayBtn" class="px-3 py-1.5 rounded bg-charcoal border border-lavender text-lavender text-xs hover:bg-lavender/10">
+              Enable Tracing Overlay in Studio
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D Joint & Camera Controls -->
+        <div class="w-80 bg-charcoal border-l border-panelborder p-4 overflow-y-auto space-y-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-lavender">3D Mannequin & Camera</h3>
+          <div class="space-y-2">
+            <label class="block text-[11px] text-gray-400">Body Proportion Preset</label>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button data-body="female" class="body-preset-btn px-2 py-1.5 rounded bg-lavender/20 border border-lavender text-white text-[11px]">Manhwa F</button>
+              <button data-body="male" class="body-preset-btn px-2 py-1.5 rounded bg-slatepanel border border-panelborder text-gray-300 text-[11px]">Manhwa M</button>
+              <button data-body="chibi" class="body-preset-btn px-2 py-1.5 rounded bg-slatepanel border border-panelborder text-gray-300 text-[11px]">Stylised</button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-[11px] text-gray-400">Quick Action & Drama Poses</label>
+            <div class="grid grid-cols-2 gap-1.5" id="posePresetButtons">
+              <button data-pose="standing" class="px-2 py-1.5 rounded bg-slatepanel hover:border-lavender border border-panelborder text-left text-[11px]">Standing Relaxed</button>
+              <button data-pose="lookback" class="px-2 py-1.5 rounded bg-slatepanel hover:border-lavender border border-panelborder text-left text-[11px]">Over-Shoulder Look</button>
+              <button data-pose="phone" class="px-2 py-1.5 rounded bg-slatepanel hover:border-lavender border border-panelborder text-left text-[11px]">Holding Smartphone</button>
+              <button data-pose="dramatic" class="px-2 py-1.5 rounded bg-slatepanel hover:border-lavender border border-panelborder text-left text-[11px]">Dramatic Reach</button>
+              <button data-pose="walking" class="px-2 py-1.5 rounded bg-slatepanel hover:border-lavender border border-panelborder text-left text-[11px]">Walking Stride</button>
+              <button data-pose="confession" class="px-2 py-1.5 rounded bg-slatepanel hover:border-lavender border border-panelborder text-left text-[11px]">Hand on Chest</button>
+            </div>
+          </div>
+
+          <div class="space-y-2 border-t border-panelborder pt-3">
+            <div class="text-[11px] font-semibold text-blush">Camera & Joint Articulation</div>
+            <div>
+              <div class="flex justify-between text-[10px] text-gray-400"><span>Camera Orbit Yaw</span><span id="camYawVal">25°</span></div>
+              <input id="camYawSlider" type="range" min="-180" max="180" value="25" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-gray-400"><span>Camera Pitch (Low/High Angle)</span><span id="camPitchVal">8°</span></div>
+              <input id="camPitchSlider" type="range" min="-45" max="45" value="8" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-gray-400"><span>Head Tilt / Turn</span><span id="jointHeadVal">10°</span></div>
+              <input id="jointHeadSlider" type="range" min="-45" max="45" value="10" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-gray-400"><span>Right Arm Raise</span><span id="jointRArmVal">20°</span></div>
+              <input id="jointRArmSlider" type="range" min="-90" max="140" value="20" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-gray-400"><span>Left Arm Raise</span><span id="jointLArmVal">-15°</span></div>
+              <input id="jointLArmSlider" type="range" min="-90" max="140" value="-15" class="w-full" />
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] text-gray-400"><span>Torso Twist</span><span id="jointTorsoVal">0°</span></div>
+              <input id="jointTorsoSlider" type="range" min="-40" max="40" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: DEDICATED CHARACTER CREATOR LAB -->
+      <div id="view-character" class="hidden flex-1 flex overflow-hidden bg-obsidian">
+        <div class="flex-1 flex flex-col items-center justify-center bg-[#0d0d11] p-4">
+          <div class="bg-charcoal border border-panelborder rounded-lg p-3 shadow-2xl flex flex-col items-center">
+            <canvas id="characterPreviewCanvas" width="420" height="520" class="rounded bg-gradient-to-b from-[#23212e] to-[#17161e] border border-panelborder"></canvas>
+            <div class="mt-3 flex items-center gap-2">
+              <button id="stampCharacterBtn" class="px-4 py-2 rounded bg-gradient-to-r from-lavender to-blush text-obsidian font-bold text-xs hover:opacity-95 shadow">
+                ✦ Place Character onto Webtoon Panel
+              </button>
+              <button id="saveCharacterPresetBtn" class="px-3 py-2 rounded bg-slatepanel border border-panelborder text-gray-200 text-xs hover:border-lavender">
+                Save to Cast Wardrobe
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modular Anatomy & Wardrobe Customizer -->
+        <div class="w-96 bg-charcoal border-l border-panelborder p-4 overflow-y-auto space-y-4">
+          <div class="flex items-center justify-between border-b border-panelborder pb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-lavender">Korean Webtoon Character Lab</h3>
+            <input id="charNameInput" type="text" value="Seo Ji-hoon" class="bg-obsidian border border-panelborder rounded px-2 py-0.5 text-xs text-blush w-32" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-[11px]">
+            <div>
+              <label class="text-gray-400 block mb-1">Face Structure</label>
+              <select id="charFaceSelect" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-white">
+                <option value="sharp">Sharp Manhwa Jaw</option>
+                <option value="soft">Soft Oval Romance</option>
+                <option value="heart">Delicate Heart-Shaped</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 block mb-1">Eye Archetype</label>
+              <select id="charEyesSelect" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-white">
+                <option value="fox">Sharp Fox / Cold Male Lead</option>
+                <option value="almond">Romantic Almond Sparkle</option>
+                <option value="sleepy">Languid / Sleepy Gaze</option>
+                <option value="wide">Expressive Wide</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 block mb-1">Eyebrows</label>
+              <select id="charBrowsSelect" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-white">
+                <option value="straight">Straight Calm</option>
+                <option value="furrowed">Dramatic Furrowed</option>
+                <option value="soft">Gentle Arched</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 block mb-1">Expression</label>
+              <select id="charExprSelect" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-white">
+                <option value="smirk">Subtle Manhwa Smirk</option>
+                <option value="neutral">Composed Neutral</option>
+                <option value="blush">Flustered Blush</option>
+                <option value="surprised">Wide-Eyed Shock</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 block mb-1">Front & Back Hair</label>
+              <select id="charHairSelect" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-white">
+                <option value="comma">Korean Comma Bangs</option>
+                <option value="wolf">Layered Wolf Cut</option>
+                <option value="long">Long Flowing Hime Cut</option>
+                <option value="curtain">Curtain Bangs + Ponytail</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-gray-400 block mb-1">Wardrobe Outfit</label>
+              <select id="charOutfitSelect" class="w-full bg-obsidian border border-panelborder rounded p-1.5 text-white">
+                <option value="uniform">Seoul Prep School Uniform</option>
+                <option value="trench">Autumn Trench & Turtleneck</option>
+                <option value="royal">Royal Fantasy High-Collar</option>
+                <option value="casual">Oversized Knit Sweater</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Color Palettes -->
+          <div class="space-y-2 border-t border-panelborder pt-3">
+            <div class="text-[11px] font-semibold text-blush">Character Colour Palette</div>
+            <div class="grid grid-cols-4 gap-2 text-[10px]">
+              <label class="flex flex-col items-center gap-1 bg-obsidian p-1.5 rounded border border-panelborder">
+                <span>Skin</span>
+                <input type="color" id="charSkinColor" value="#fce3d6" class="w-8 h-5 bg-transparent cursor-pointer" />
+              </label>
+              <label class="flex flex-col items-center gap-1 bg-obsidian p-1.5 rounded border border-panelborder">
+                <span>Hair</span>
+                <input type="color" id="charHairColor" value="#242533" class="w-8 h-5 bg-transparent cursor-pointer" />
+              </label>
+              <label class="flex flex-col items-center gap-1 bg-obsidian p-1.5 rounded border border-panelborder">
+                <span>Iris</span>
+                <input type="color" id="charEyeColor" value="#5a82c9" class="w-8 h-5 bg-transparent cursor-pointer" />
+              </label>
+              <label class="flex flex-col items-center gap-1 bg-obsidian p-1.5 rounded border border-panelborder">
+                <span>Outfit</span>
+                <input type="color" id="charOutfitColor" value="#2d334a" class="w-8 h-5 bg-transparent cursor-pointer" />
+              </label>
+            </div>
+            <label class="flex items-center gap-2 text-[11px] text-gray-300 pt-1">
+              <input type="checkbox" id="charGlassesCheck" class="accent-lavender" />
+              <span>Add Thin Rimless Glasses (Manhwa Archetype)</span>
+            </label>
+          </div>
+
+          <!-- Saved Cast List -->
+          <div class="border-t border-panelborder pt-3">
+            <div class="text-[11px] font-semibold text-gray-400 mb-2">Saved Cast Wardrobe</div>
+            <div id="savedCharactersList" class="space-y-1.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: BEGINNER DRAWING ACADEMY -->
+      <div id="view-academy" class="hidden flex-1 overflow-y-auto p-6 bg-obsidian">
+        <div class="max-w-5xl mx-auto space-y-5">
+          <div class="flex items-center justify-between border-b border-panelborder pb-4">
+            <div>
+              <span class="px-2 py-0.5 rounded bg-blush/20 text-blush text-[10px] font-bold uppercase tracking-wider">Guided Interactive Academy</span>
+              <h2 class="text-lg font-bold text-white mt-1">From Zero Experience to Published Webtoon Artist</h2>
+              <p class="text-xs text-gray-400">Select any guided lesson below to load faint traceable construction guidelines directly onto your studio canvas.</p>
+            </div>
+            <div class="bg-charcoal border border-panelborder rounded-lg px-4 py-2 text-right">
+              <div class="text-[10px] text-gray-400">COMPLETED LESSONS</div>
+              <div class="text-base font-bold text-lavender" id="academyProgressText">1 / 6 Modules</div>
+            </div>
+          </div>
+
+          <div id="academyLessonsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+      </div>
+
+      <!-- VIEW 6: FULL VERTICAL SCROLL WEBTOON READER PREVIEW -->
+      <div id="view-reader" class="hidden flex-1 overflow-y-auto bg-[#09090b] p-6">
+        <div class="max-w-[820px] mx-auto">
+          <div class="flex items-center justify-between bg-charcoal border border-panelborder rounded-t-lg px-4 py-2.5 sticky top-0 z-20">
+            <div class="flex items-center gap-2">
+              <span class="text-blush font-bold">WEBTOON READER VIEW</span>
+              <span class="text-gray-500">|</span>
+              <span id="readerEpisodeTitle" class="text-gray-200 text-xs">Ep. 01 — Rain at Gangnam Station</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-gray-400">800px Standard Vertical Scroll Format</span>
+              <button id="readerExportBtn" class="px-2.5 py-1 rounded bg-lavender text-obsidian font-semibold text-[11px]">Export Episode PDF</button>
+            </div>
+          </div>
+          <div id="verticalScrollContainer" class="bg-white shadow-2xl flex flex-col items-center"></div>
+        </div>
+      </div>
+
+      <!-- BOTTOM TIMELINE & STORYBOARD FILMSTRIP -->
+      <div class="h-28 bg-charcoal border-t border-panelborder flex flex-col shrink-0 z-20">
+        <div class="h-6 px-3 border-b border-panelborder/70 flex items-center justify-between text-[10px] text-gray-400">
+          <div class="flex items-center gap-3">
+            <span class="font-semibold text-lavender uppercase tracking-wider">Episode Panel Timeline</span>
+            <span id="panelCountLabel">3 Panels in Episode</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="addPanelBtn" class="px-2 py-0.5 rounded bg-slatepanel hover:bg-lavender hover:text-obsidian text-gray-200 transition">+ New Panel</button>
+            <button id="dupPanelBtn" class="px-2 py-0.5 rounded bg-slatepanel hover:text-white text-gray-300 transition">Duplicate</button>
+            <button id="movePanelLeftBtn" class="px-1.5 py-0.5 rounded bg-slatepanel hover:text-white text-gray-300" title="Move Panel Earlier">◀</button>
+            <button id="movePanelRightBtn" class="px-1.5 py-0.5 rounded bg-slatepanel hover:text-white text-gray-300" title="Move Panel Later">▶</button>
+            <button id="delPanelBtn" class="px-2 py-0.5 rounded bg-slatepanel hover:text-red-400 text-gray-300 transition">Delete</button>
+          </div>
+        </div>
+        <div id="timelineFilmstrip" class="flex-1 flex items-center gap-2.5 px-3 py-1.5 overflow-x-auto"></div>
+      </div>
+    </main>
+
+    <!-- RIGHT COLLAPSIBLE INSPECTOR SIDEBAR -->
+    <aside id="rightSidebar" class="w-80 bg-charcoal border-l border-panelborder flex flex-col shrink-0 z-20">
+      <!-- Inspector Tabs -->
+      <div class="grid grid-cols-4 border-b border-panelborder bg-obsidian/60 text-[10px] font-semibold tracking-wide shrink-0">
+        <button data-rtab="brushes" class="tab-btn active py-2 text-center">BRUSHES</button>
+        <button data-rtab="layers" class="tab-btn py-2 text-center text-gray-400 hover:text-white">LAYERS & FX</button>
+        <button data-rtab="assets" class="tab-btn py-2 text-center text-gray-400 hover:text-white">BG & CAST</button>
+        <button data-rtab="color" class="tab-btn py-2 text-center text-gray-400 hover:text-white">PALETTE</button>
+      </div>
+
+      <!-- TAB 1: PROFESSIONAL WEBTOON BRUSH LIBRARY -->
+      <div id="rtab-brushes" class="flex-1 overflow-y-auto p-3 space-y-3">
+        <!-- Category Filter -->
+        <div class="flex flex-wrap gap-1" id="brushCategoryPills">
+          <button data-bcat="all" class="bcat-btn px-2 py-0.5 rounded bg-lavender text-obsidian font-semibold text-[10px]">All</button>
+          <button data-bcat="lineart" class="bcat-btn px-2 py-0.5 rounded bg-slatepanel text-gray-300 text-[10px]">Line Art</button>
+          <button data-bcat="colouring" class="bcat-btn px-2 py-0.5 rounded bg-slatepanel text-gray-300 text-[10px]">Colour & Skin</button>
+          <button data-bcat="hair" class="bcat-btn px-2 py-0.5 rounded bg-slatepanel text-gray-300 text-[10px]">Hair & Fabric</button>
+          <button data-bcat="specialty" class="bcat-btn px-2 py-0.5 rounded bg-slatepanel text-blush text-[10px]">Webtoon Specialty</button>
+          <button data-bcat="effects" class="bcat-btn px-2 py-0.5 rounded bg-slatepanel text-gray-300 text-[10px]">FX & Env</button>
+        </div>
+
+        <!-- Brush Grid with Live Stroke Thumbnails -->
+        <div id="brushLibraryGrid" class="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1"></div>
+
+        <!-- Brush Dynamics & Customizer -->
+        <div class="bg-obsidian/80 border border-panelborder rounded-lg p-2.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-lavender">Brush Dynamics</span>
+            <button id="resetBrushBtn" class="text-[10px] text-gray-400 hover:text-blush">Reset</button>
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] text-gray-400"><span>Stroke Size</span><span id="bSizeLabel">6 px</span></div>
+            <input id="bSizeSlider" type="range" min="1" max="120" value="6" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] text-gray-400"><span>Opacity / Flow</span><span id="bOpacityLabel">100%</span></div>
+            <input id="bOpacitySlider" type="range" min="5" max="100" value="100" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] text-gray-400"><span>Tip Taper / Pressure Curve</span><span id="bTaperLabel">75%</span></div>
+            <input id="bTaperSlider" type="range" min="0" max="100" value="75" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] text-gray-400"><span>Stamp Spacing</span><span id="bSpacingLabel">12%</span></div>
+            <input id="bSpacingSlider" type="range" min="2" max="120" value="12" class="w-full" />
+          </div>
+        </div>
+
+        <!-- Quick Speech Bubble & Panel Frame Presets -->
+        <div class="bg-obsidian/80 border border-panelborder rounded-lg p-2.5 space-y-2">
+          <div class="text-[11px] font-semibold text-blush">1-Click Speech Bubbles & SFX</div>
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <button data-addbubble="oval" class="quick-bubble-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder text-center">💬 Oval</button>
+            <button data-addbubble="cloud" class="quick-bubble-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder text-center">💭 Thought</button>
+            <button data-addbubble="jagged" class="quick-bubble-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder text-center">💥 Shout</button>
+            <button data-addbubble="narration" class="quick-bubble-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder text-center">▭ Caption</button>
+            <button data-addbubble="whisper" class="quick-bubble-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder text-center">◌ Whisper</button>
+            <button data-addbubble="sfx" class="quick-bubble-btn py-1.5 px-1 rounded bg-slatepanel hover:border-blush border border-panelborder text-blush text-center">✦ SFX Text</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LAYERS & NON-DESTRUCTIVE RENDERING ENGINE -->
+      <div id="rtab-layers" class="hidden flex-1 overflow-y-auto p-3 space-y-3">
+        <!-- Layer Stack Controls -->
+        <div class="bg-obsidian/80 border border-panelborder rounded-lg p-2.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-lavender">Panel Layer Stack</span>
+            <div class="flex items-center gap-1">
+              <button id="addLayerBtn" class="px-1.5 py-0.5 rounded bg-slatepanel hover:bg-lavender hover:text-obsidian text-[10px]" title="New Layer">+ Layer</button>
+              <button id="mergeDownBtn" class="px-1.5 py-0.5 rounded bg-slatepanel hover:text-white text-[10px]" title="Merge Down">Merge</button>
+              <button id="delLayerBtn" class="px-1.5 py-0.5 rounded bg-slatepanel hover:text-red-400 text-[10px]" title="Delete Layer">🗑</button>
+            </div>
+          </div>
+
+          <!-- Blend Mode & Opacity for Active Layer -->
+          <div class="grid grid-cols-2 gap-2 text-[10px]">
+            <div>
+              <label class="text-gray-400 block">Blend Mode</label>
+              <select id="layerBlendSelect" class="w-full bg-slatepanel border border-panelborder rounded px-1.5 py-1 text-white">
+                <option value="source-over">Normal</option>
+                <option value="multiply">Multiply (Shadows)</option>
+                <option value="screen">Screen (Glow/Light)</option>
+                <option value="overlay">Overlay (Contrast)</option>
+                <option value="lighter">Add / Dodge</option>
+              </select>
+            </div>
+            <div>
+              <div class="flex justify-between text-gray-400"><span>Opacity</span><span id="layerOpacityVal">100%</span></div>
+              <input id="layerOpacitySlider" type="range" min="0" max="100" value="100" class="w-full mt-1.5" />
+            </div>
+          </div>
+
+          <!-- Layer Items List -->
+          <div id="layerStackList" class="space-y-1 max-h-52 overflow-y-auto"></div>
+        </div>
+
+        <!-- Advanced Webtoon Rendering & Lighting Engine -->
+        <div class="bg-obsidian/80 border border-lavender/40 rounded-lg p-2.5 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-blush">✦ Webtoon Rendering Engine</span>
+            <span class="text-[9px] text-gray-400">Non-Destructive</span>
+          </div>
+          <div>
+            <label class="text-[10px] text-gray-400 block mb-1">Artistic Finish Grade</label>
+            <select id="renderStyleSelect" class="w-full bg-slatepanel border border-panelborder rounded px-2 py-1 text-[11px] text-white">
+              <option value="none">Raw Studio Layers (Off)</option>
+              <option value="manhwa">Clean Korean Manhwa Polish</option>
+              <option value="romantic">Soft Romantic Pastel Bloom</option>
+              <option value="cinematic">Dramatic Cinematic Action</option>
+              <option value="fantasy">Ethereal Fantasy Glow</option>
+              <option value="noir">Moody Thriller Contrast</option>
+            </select>
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] text-gray-400"><span>Grade Intensity</span><span id="renderIntensityVal">65%</span></div>
+            <input id="renderIntensitySlider" type="range" min="0" max="100" value="65" class="w-full" />
+          </div>
+          <div>
+            <div class="flex justify-between text-[10px] text-gray-400"><span>Rim Light & Atmospheric Warmth</span><span id="rimLightVal">40%</span></div>
+            <input id="rimLightSlider" type="range" min="0" max="100" value="40" class="w-full" />
+          </div>
+          <button id="autoShadeBtn" class="w-full py-1.5 rounded bg-gradient-to-r from-lavender/25 to-blush/25 border border-lavender/50 text-white text-[11px] font-medium hover:border-lavender">
+            Apply Automatic Ambient Rim & Bloom Pass
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: HD BACKGROUNDS, CHARACTER STAMPS & PANEL TEMPLATES -->
+      <div id="rtab-assets" class="hidden flex-1 overflow-y-auto p-3 space-y-3">
+        <!-- Premade HD Webtoon Backgrounds -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-lavender">HD Illustrated Backgrounds</span>
+            <select id="bgTimeOfDaySelect" class="bg-obsidian border border-panelborder rounded px-1.5 py-0.5 text-[10px] text-blush">
+              <option value="day">Soft Daylight</option>
+              <option value="sunset">Golden Hour Sunset</option>
+              <option value="night">Rainy Seoul Night</option>
+              <option value="sakura">Cherry Blossom</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-2" id="bgLibraryGrid"></div>
+        </div>
+
+        <!-- Quick Character Stamps -->
+        <div class="border-t border-panelborder pt-2.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-blush">Quick Cast Stamps</span>
+            <button id="jumpToCharLabBtn" class="text-[10px] text-lavender hover:underline">Open Full Lab →</button>
+          </div>
+          <div class="grid grid-cols-2 gap-2" id="quickCastGrid"></div>
+        </div>
+
+        <!-- Panel Layout Templates -->
+        <div class="border-t border-panelborder pt-2.5 space-y-2">
+          <span class="text-[11px] font-semibold text-gray-300">Panel Frame Layout Presets</span>
+          <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <button data-layout="single" class="layout-preset-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder">Full Bleed</button>
+            <button data-layout="split2" class="layout-preset-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder">2-Stack</button>
+            <button data-layout="diagonal" class="layout-preset-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder">Diagonal Cut</button>
+            <button data-layout="dramatic3" class="layout-preset-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder">3-Beat Focus</button>
+            <button data-layout="inset" class="layout-preset-btn py-1.5 px-1 rounded bg-slatepanel hover:border-lavender border border-panelborder">Eye Inset</button>
+            <button data-layout="clear" class="layout-preset-btn py-1.5 px-1 rounded bg-slatepanel hover:text-red-300 border border-panelborder">No Borders</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: COLOUR & GENRE PALETTE STUDIO -->
+      <div id="rtab-color" class="hidden flex-1 overflow-y-auto p-3 space-y-3">
+        <div class="bg-obsidian/80 border border-panelborder rounded-lg p-2.5 space-y-2">
+          <div class="text-[11px] font-semibold text-lavender">Active Colour & HEX</div>
+          <div class="flex items-center gap-2">
+            <input type="color" id="studioColorWheel" value="#1e1b29" class="w-12 h-10 rounded cursor-pointer bg-transparent border border-panelborder" />
+            <div class="flex-1 space-y-1">
+              <input type="text" id="hexColorInput" value="#1E1B29" class="w-full bg-slatepanel border border-panelborder rounded px-2 py-1 font-mono text-xs text-white uppercase" />
+              <div class="text-[10px] text-gray-400">Click any swatch below to set stroke colour</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="genrePalettesContainer" class="space-y-2.5"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ==================== 3. EXPORT & HD PDF PRODUCTION MODAL ==================== -->
+  <div id="exportModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-charcoal border border-lavender/40 rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col">
+      <div class="px-5 py-3.5 bg-obsidian border-b border-panelborder flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-blush text-base">✦</span>
+          <h3 class="font-bold text-sm text-white tracking-wide">HD WEBTOON PRODUCTION & PDF EXPORT STUDIO</h3>
+        </div>
+        <button id="closeExportModalBtn" class="text-gray-400 hover:text-white text-sm">✕</button>
+      </div>
+
+      <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Left: Export Configuration -->
+        <div class="space-y-3.5 text-xs">
+          <div>
+            <label class="block text-gray-400 text-[11px] mb-1">Export Format</label>
+            <select id="exportFormatSelect" class="w-full bg-obsidian border border-panelborder rounded p-2 text-white">
+              <option value="pdf-episode">Complete Episode — High-Definition PDF (.pdf)</option>
+              <option value="pdf-panel">Current Active Panel — HD Single Page PDF (.pdf)</option>
+              <option value="png-panel">Current Active Panel — Lossless PNG (.png)</option>
+              <option value="png-scroll">Full Vertical Webtoon Strip — Stitched PNG (.png)</option>
+              <option value="jpg-panel">Current Active Panel — High-Quality JPG (.jpg)</option>
+              <option value="json-project">Editable Studio Project File (.json)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-gray-400 text-[11px] mb-1">Print / Screen Resolution</label>
+              <select id="exportDpiSelect" class="w-full bg-obsidian border border-panelborder rounded p-2 text-white">
+                <option value="1">Standard Web (800px · 150 DPI)</option>
+                <option value="2" selected>HD Webtoon Master (1600px · 300 DPI)</option>
+                <option value="3">Ultra Print / Archive (2400px · 600 DPI)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-400 text-[11px] mb-1">PDF Layout Mode</label>
+              <select id="exportLayoutSelect" class="w-full bg-obsidian border border-panelborder rounded p-2 text-white">
+                <option value="pages">Multi-Page Episode (1 Panel/Page)</option>
+                <option value="continuous">Continuous Vertical Scroll Sheet</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bg-obsidian/80 border border-panelborder rounded-lg p-3 space-y-1.5 text-[11px]">
+            <div class="flex justify-between"><span class="text-gray-400">Panels Included:</span><span id="expPanelCount" class="text-white font-semibold">3 Panels</span></div>
+            <div class="flex justify-between"><span class="text-gray-400">Output Dimensions:</span><span id="expDimensions" class="text-lavender font-mono">1600 × 2240 px</span></div>
+            <div class="flex justify-between"><span class="text-gray-400">Estimated File Size:</span><span id="expEstSize" class="text-blush font-mono">~2.4 MB</span></div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="exportProgressWrap" class="hidden space-y-1">
+            <div class="flex justify-between text-[11px]">
+              <span id="exportProgressLabel" class="text-lavender">Rendering high-resolution layers...</span>
+              <span id="exportProgressPct" class="font-mono text-white">0%</span>
+            </div>
+            <div class="w-full h-2 bg-obsidian rounded-full overflow-hidden">
+              <div id="exportProgressBar" class="h-full bg-gradient-to-r from-lavender to-blush transition-all duration-150" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <button id="startExportBtn" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-lavender to-blush text-obsidian font-bold text-xs hover:opacity-95 shadow-lg transition">
+            Generate & Download HD File
+          </button>
+        </div>
+
+        <!-- Right: Live Render Preview -->
+        <div class="bg-obsidian border border-panelborder rounded-lg p-3 flex flex-col items-center justify-center">
+          <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Final Output Verification Preview</div>
+          <canvas id="exportPreviewCanvas" width="240" height="336" class="rounded border border-panelborder bg-white shadow-lg"></canvas>
+          <p class="text-[10px] text-gray-500 mt-2 text-center">Includes all visible illustration layers, lighting grade, panel borders, vector speech bubbles, and SFX lettering.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="studioToast" class="hidden fixed bottom-32 left-1/2 -translate-x-1/2 bg-charcoal border border-lavender text-white px-4 py-2 rounded-full shadow-2xl text-xs z-50 flex items-center gap-2">
+    <span class="text-blush">✦</span>
+    <span id="studioToastMsg">Action completed</span>
+  </div>
+
+<script>
+/**
+ * ============================================================================
+ * ATELIER SEOUL // WEBTOON CREATION STUDIO
+ * Complete Self-Contained Illustration, Storyboard, 3D Reference & PDF Engine
+ * ============================================================================
+ */
+
+(function() {
+  'use strict';
+
+  const CANVAS_W = 800;
+  const CANVAS_H = 1120;
+
+  // -------------------- UTILITY & TOAST --------------------
+  function showToast(msg) {
+    const toast = document.getElementById('studioToast');
+    document.getElementById('studioToastMsg').textContent = msg;
+    toast.classList.remove('hidden');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.add('hidden'), 2600);
+  }
+
+  function uid() {
+    return 'id_' + Math.random().toString(36).slice(2, 9);
+  }
+
+  // -------------------- BRUSH DEFINITIONS --------------------
+  const BRUSH_LIBRARY = [
+    // Line Art
+    { id: 'gpen', name: 'Korean G-Pen', cat: 'lineart', size: 5, opacity: 1, taper: 0.85, spacing: 0.08, type: 'ink', desc: 'Crisp variable-width manhwa line art' },
+    { id: 'mapping', name: 'Mapping Pen', cat: 'lineart', size: 2.5, opacity: 1, taper: 0.9, spacing: 0.06, type: 'ink', desc: 'Ultra-fine eyelash & detail nib' },
+    { id: 'tapered', name: 'Tapered Studio Ink', cat: 'lineart', size: 8, opacity: 1, taper: 0.95, spacing: 0.08, type: 'ink', desc: 'Expressive dynamic contour ink' },
+    { id: 'pencil', name: 'Rough Sketch Pencil', cat: 'lineart', size: 4, opacity: 0.65, taper: 0.4, spacing: 0.12, type: 'pencil', desc: 'Textured graphite underdrawing' },
+    // Colouring & Skin
+    { id: 'airbrush', name: 'Soft Airbrush', cat: 'colouring', size: 48, opacity: 0.35, taper: 0.1, spacing: 0.15, type: 'airbrush', desc: 'Smooth gradients & soft lighting' },
+    { id: 'celshade', name: 'Cel-Shade Flat', cat: 'colouring', size: 22, opacity: 0.92, taper: 0.2, spacing: 0.08, type: 'flat', desc: 'Clean hard-edge manhwa shadow fill' },
+    { id: 'blush', name: 'Cheek & Nose Blush', cat: 'colouring', size: 36, opacity: 0.28, taper: 0.1, spacing: 0.18, type: 'airbrush', desc: 'Romantic rosy skin warmth' },
+    { id: 'painterly', name: 'Painterly Gouache', cat: 'colouring', size: 28, opacity: 0.78, taper: 0.5, spacing: 0.1, type: 'painterly', desc: 'Semi-realistic webtoon rendering' },
+    // Hair & Fabric
+    { id: 'hairstrands', name: 'Hair Strands Multi', cat: 'hair', size: 18, opacity: 0.9, taper: 0.95, spacing: 0.08, type: 'hair', desc: 'Parallel tapered hair locks' },
+    { id: 'hairshine', name: 'Glossy Hair Halo', cat: 'hair', size: 26, opacity: 0.65, taper: 0.7, spacing: 0.12, type: 'shine', desc: 'Luminous Korean webtoon hair ring' },
+    { id: 'lace', name: 'Lace & Stitching', cat: 'hair', size: 16, opacity: 0.95, taper: 0, spacing: 0.85, type: 'lace', desc: 'Decorative garment trim & stitches' },
+    // Webtoon Specialty (Inspired by user's reference sheets!)
+    { id: 'booktext', name: 'Book Manuscript Text', cat: 'specialty', size: 18, opacity: 0.88, taper: 0, spacing: 0.95, type: 'booktext', desc: 'Handwritten book page squiggle lines' },
+    { id: 'crowd', name: 'Pedestrian Crowd Stamp', cat: 'specialty', size: 64, opacity: 0.92, taper: 0, spacing: 1.1, type: 'crowd', desc: 'Perspective-aware background NPCs' },
+    { id: 'necklace', name: 'Pearl Flower Chain', cat: 'specialty', size: 16, opacity: 0.95, taper: 0, spacing: 0.95, type: 'necklace', desc: 'Ornate fantasy jewelry chain brush' },
+    { id: 'mergeoutline', name: 'Hollow SFX Outline', cat: 'specialty', size: 22, opacity: 1, taper: 0.3, spacing: 0.06, type: 'hollow', desc: 'Overlapping white-fill outlined text stroke' },
+    // FX & Env
+    { id: 'sparkles', name: 'Shoujo Sparkles ✦', cat: 'effects', size: 28, opacity: 0.95, taper: 0, spacing: 0.9, type: 'sparkles', desc: 'Romantic floating stars & bokeh' },
+    { id: 'foliage', name: 'Cherry Blossom Leaves', cat: 'effects', size: 32, opacity: 0.9, taper: 0, spacing: 0.75, type: 'foliage', desc: 'Soft petals & foliage clusters' },
+    { id: 'rain', name: 'Seoul Rain Streaks', cat: 'effects', size: 42, opacity: 0.55, taper: 0.8, spacing: 0.8, type: 'rain', desc: 'Diagonal atmospheric rain lines' },
+  ];
+
+  // -------------------- COLOUR PALETTES --------------------
+  const GENRE_PALETTES = [
+    { name: 'Korean Skin & Blush Tones', colors: ['#fff1ea', '#fce3d6', '#f5cbb7', '#e6ae96', '#c98870', '#f7a8b8', '#e87a90', '#9e4758'] },
+    { name: 'Romantic Shoujo Pastels', colors: ['#f9d5e5', '#eeac99', '#e06377', '#c83349', '#b8a1e3', '#9683ec', '#a2d2ff', '#fff8e7'] },
+    { name: 'Modern Seoul Drama / Office', colors: ['#18181d', '#2d334a', '#4a5568', '#718096', '#cbd5e0', '#8c6d53', '#d6c3b0', '#f7fafc'] },
+    { name: 'Royal Fantasy & Historical', colors: ['#2b193d', '#4b286d', '#8c52ff', '#d4af37', '#f3e5ab', '#800020', '#1b4332', '#e8e8e8'] },
+    { name: 'Cinematic Thriller & Neon', colors: ['#0b0c10', '#1f2833', '#45a29e', '#66fcf1', '#ff2a6d', '#05d9e8', '#d1f7ff', '#3a0ca3'] }
+  ];
+
+  // -------------------- BACKGROUNDS LIST --------------------
+  const BACKGROUNDS = [
+    { id: 'classroom', name: 'Seoul High Classroom', tag: 'School Life' },
+    { id: 'street', name: 'Gangnam Crosswalk', tag: 'Urban Drama' },
+    { id: 'sakura', name: 'Cherry Blossom Park', tag: 'Romance' },
+    { id: 'ballroom', name: 'Royal Palace Hall', tag: 'Fantasy' },
+    { id: 'cafe', name: 'Rainy Window Café', tag: 'Slice of Life' },
+    { id: 'rooftop', name: 'School Sunset Roof', tag: 'Emotional' }
+  ];
+
+  // -------------------- ACADEMY LESSONS --------------------
+  const ACADEMY_LESSONS = [
+    {
+      id: 'l1', title: '1. Manhwa Head & Jaw Proportions',
+      desc: 'Trace the lavender cranium circle and vertical centerline. Korean webtoon characters feature slightly elongated faces with a clean, tapered chin.',
+      guideType: 'head', completed: true
+    },
+    {
+      id: 'l2', title: '2. Expressive Korean Webtoon Eyes',
+      desc: 'Follow the upper lid arch, sharp inner corner, double eyelid crease, and multi-layered iris reflection highlights.',
+      guideType: 'eyes', completed: false
+    },
+    {
+      id: 'l3', title: '3. Flowing Hair Locks & Gloss Halo',
+      desc: 'Draw large S-curve hair clumps from the crown outward, then use the Glossy Hair Halo brush across the bangs.',
+      guideType: 'hair', completed: false
+    },
+    {
+      id: 'l4', title: '4. 1-Point Perspective Hallway',
+      desc: 'Enable the 1-Pt perspective ruler and connect classroom windows and desks toward the central vanishing point.',
+      guideType: 'perspective', completed: false
+    },
+    {
+      id: 'l5', title: '5. Dramatic Panel Composition',
+      desc: 'Arrange a diagonal action cut with a foreground character silhouette and a crisp speech bubble.',
+      guideType: 'composition', completed: false
+    },
+    {
+      id: 'l6', title: '6. Cel-Shading & Rim Lighting',
+      desc: 'Use a Multiply layer with cool lavender shadows and a Screen layer for warm golden rim highlights.',
+      guideType: 'lighting', completed: false
+    }
+  ];
+
+  // -------------------- APPLICATION STATE --------------------
+  const state = {
+    projectTitle: 'Midnight Cherry Blossoms',
+    episodeTitle: 'Ep. 01 — Rain at Gangnam Station',
+    activeMode: 'studio',
+    activeTool: 'brush',
+    primaryColor: '#1e1b29',
+    secondaryColor: '#ffffff',
+    zoom: 0.72,
+    panX: 0,
+    panY: 0,
+    perspectiveMode: 'none',
+    vp1: { x: 400, y: 450 },
+    vp2: { x: 740, y: 450 },
+    showGrid: false,
+    showRulers: true,
+    show3DOverlay: false,
+    activeBrushId: 'gpen',
+    brushSettings: { size: 6, opacity: 1, taper: 0.85, spacing: 0.08 },
+    panels: [],
+    activePanelIndex: 0,
+    selectedObjectId: null,
+    activeAcademyLesson: null,
+    academyOpacity: 0.45,
+    completedLessons: ['l1'],
+    savedCharacters: [
+      { name: 'Seo Ji-hoon', face: 'sharp', eyes: 'fox', brows: 'straight', expr: 'smirk', hair: 'comma', outfit: 'uniform', skin: '#fce3d6', hairColor: '#242533', eyeColor: '#5a82c9', outfitColor: '#2d334a', glasses: true },
+      { name: 'Han So-yeon', face: 'heart', eyes: 'almond', brows: 'soft', expr: 'blush', hair: 'long', outfit: 'trench', skin: '#fff1ea', hairColor: '#5c3a2e', eyeColor: '#8f5b4a', outfitColor: '#c9a98b', glasses: false }
+    ],
+    pose3D: {
+      body: 'female',
+      yaw: 25,
+      pitch: 8,
+      head: 10,
+      rArm: 20,
+      lArm: -15,
+      torso: 0
+    },
+    history: ['Initialized Studio Project'],
+    undoStack: [],
+    redoStack: []
+  };
+
+  // -------------------- LAYER & PANEL FACTORY --------------------
+  function createOffscreenLayer(name, blend = 'source-over', opacity = 1) {
+    const c = document.createElement('canvas');
+    c.width = CANVAS_W;
+    c.height = CANVAS_H;
+    return {
+      id: uid(),
+      name,
+      canvas: c,
+      ctx: c.getContext('2d'),
+      visible: true,
+      locked: false,
+      blend,
+      opacity
+    };
+  }
+
+  function createPanel(title, notes, shotType = 'Medium Shot', dialogue = '') {
+    const bgLayer = createOffscreenLayer('Background Art', 'source-over', 1);
+    const charLayer = createOffscreenLayer('Character Base', 'source-over', 1);
+    const lineLayer = createOffscreenLayer('Line Art (G-Pen)', 'source-over', 1);
+    const shadeLayer = createOffscreenLayer('Shading & Blush', 'multiply', 0.85);
+    const fxLayer = createOffscreenLayer('Lighting & FX', 'screen', 0.9);
+
+    return {
+      id: uid(),
+      title: title || 'New Panel',
+      notes: notes || 'Scene description & emotional beat...',
+      shotType,
+      dialogueScript: dialogue,
+      layers: [bgLayer, charLayer, lineLayer, shadeLayer, fxLayer],
+      activeLayerIndex: 2,
+      renderGrade: 'manhwa',
+      renderIntensity: 0.55,
+      rimLight: 0.35,
+      frameLayout: 'single',
+      objects: [] // speech bubbles, text, SFX
+    };
+  }
+
+  // -------------------- PROCEDURAL HD KOREAN WEBTOON BACKGROUNDS --------------------
+  function renderProceduralBackground(ctx, bgId, timeOfDay = 'day') {
+    ctx.save();
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Sky / Atmosphere palettes by time of day
+    const skyPalettes = {
+      day: ['#a8d5ff', '#dff1ff', '#fff9f2'],
+      sunset: ['#4a2545', '#d96b66', '#ffd089'],
+      night: ['#0d1326', '#1c2847', '#384c7a'],
+      sakura: ['#ffd6e7', '#ffeef5', '#fff8fb']
+    };
+    const pal = skyPalettes[timeOfDay] || skyPalettes.day;
+
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, CANVAS_H * 0.75);
+    skyGrad.addColorStop(0, pal[0]);
+    skyGrad.addColorStop(0.55, pal[1]);
+    skyGrad.addColorStop(1, pal[2]);
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    if (bgId === 'classroom') {
+      // Wall & Floor
+      ctx.fillStyle = timeOfDay === 'night' ? '#23293d' : (timeOfDay === 'sunset' ? '#f5d5c8' : '#f2efe9');
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Perspective Windows on Left
+      ctx.fillStyle = pal[1];
+      ctx.beginPath();
+      ctx.moveTo(40, 120); ctx.lineTo(360, 220); ctx.lineTo(360, 620); ctx.lineTo(40, 740);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#4a4642';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Window Mullions & Sunlight Beams
+      for (let i = 1; i <= 3; i++) {
+        const t = i / 4;
+        const x = 40 + (360 - 40) * t;
+        const yTop = 120 + (220 - 120) * t;
+        const yBot = 740 + (620 - 740) * t;
+        ctx.beginPath(); ctx.moveTo(x, yTop); ctx.lineTo(x, yBot); ctx.stroke();
+      }
+
+      // God-ray window light shafts
+      const rayGrad = ctx.createLinearGradient(80, 200, 650, 850);
+      rayGrad.addColorStop(0, timeOfDay === 'sunset' ? 'rgba(255,190,110,0.38)' : 'rgba(255,255,245,0.42)');
+      rayGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rayGrad;
+      ctx.beginPath();
+      ctx.moveTo(40, 140); ctx.lineTo(780, 520); ctx.lineTo(780, 1050); ctx.lineTo(40, 740);
+      ctx.closePath();
+      ctx.fill();
+
+      // Chalkboard at Back
+      ctx.fillStyle = timeOfDay === 'night' ? '#1a332a' : '#2c4c3e';
+      ctx.fillRect(420, 250, 320, 220);
+      ctx.strokeStyle = '#7c583a';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(420, 250, 320, 220);
+
+      // Chalk notes
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(450, 300); ctx.lineTo(590, 300);
+      ctx.moveTo(450, 330); ctx.lineTo(660, 330);
+      ctx.moveTo(450, 360); ctx.lineTo(540, 360);
+      ctx.stroke();
+
+      // Wooden Classroom Floor & Desks
+      ctx.fillStyle = timeOfDay === 'night' ? '#3d2e26' : '#b88b68';
+      ctx.fillRect(0, 700, CANVAS_W, 420);
+
+      // Rows of Student Desks
+      const deskCoords = [
+        { x: 140, y: 760, w: 220, h: 120 },
+        { x: 440, y: 760, w: 220, h: 120 },
+        { x: 80, y: 920, w: 270, h: 150 },
+        { x: 430, y: 920, w: 270, h: 150 }
+      ];
+      deskCoords.forEach(d => {
+        ctx.fillStyle = timeOfDay === 'night' ? '#5c4334' : '#d6a87c';
+        ctx.strokeStyle = '#2d221b';
+        ctx.lineWidth = 3;
+        ctx.fillRect(d.x, d.y, d.w, 22);
+        ctx.strokeRect(d.x, d.y, d.w, 22);
+        ctx.fillStyle = '#4a4e59';
+        ctx.fillRect(d.x + 18, d.y + 22, 10, d.h - 22);
+        ctx.fillRect(d.x + d.w - 28, d.y + 22, 10, d.h - 22);
+      });
+
+    } else if (bgId === 'street') {
+      // Seoul Urban Skyline & Buildings
+      const bldColors = timeOfDay === 'night' ? ['#171d30', '#1f2842', '#121726'] : ['#7e8ba3', '#9aa6bd', '#65728a'];
+      const buildings = [
+        { x: 0, y: 180, w: 210, h: 680, c: bldColors[0] },
+        { x: 190, y: 110, w: 230, h: 750, c: bldColors[1] },
+        { x: 410, y: 220, w: 190, h: 640, c: bldColors[2] },
+        { x: 590, y: 90, w: 210, h: 770, c: bldColors[0] }
+      ];
+      buildings.forEach((b, idx) => {
+        ctx.fillStyle = b.c;
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.strokeStyle = '#181a24';
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+        // Lit Windows
+        for (let wy = b.y + 30; wy < b.y + b.h - 80; wy += 44) {
+          for (let wx = b.x + 22; wx < b.x + b.w - 30; wx += 42) {
+            const isLit = ((wx + wy + idx) % 3 === 0);
+            ctx.fillStyle = isLit
+              ? (timeOfDay === 'night' ? '#ffe599' : 'rgba(255,255,255,0.65)')
+              : 'rgba(20,25,40,0.45)';
+            ctx.fillRect(wx, wy, 24, 28);
+          }
+        }
+      });
+
+      // Korean Neon Signboards
+      ctx.fillStyle = '#ff5e8e';
+      ctx.fillRect(155, 420, 44, 150);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.fillText('카', 167, 460);
+      ctx.fillText('페', 167, 495);
+      ctx.fillText('24', 164, 535);
+
+      // Asphalt Road & Crosswalk Stripes
+      ctx.fillStyle = timeOfDay === 'night' ? '#191b24' : '#3a3d4a';
+      ctx.fillRect(0, 820, CANVAS_W, 300);
+      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      for (let i = 0; i < 6; i++) {
+        ctx.beginPath();
+        ctx.moveTo(60 + i * 125, 860);
+        ctx.lineTo(135 + i * 125, 860);
+        ctx.lineTo(110 + i * 125, 1080);
+        ctx.lineTo(20 + i * 125, 1080);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+    } else if (bgId === 'sakura') {
+      // Soft bokeh circles
+      for (let i = 0; i < 35; i++) {
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(255, 183, 213, 0.35)' : 'rgba(255, 255, 255, 0.45)';
+        ctx.beginPath();
+        ctx.arc((i * 137) % CANVAS_W, (i * 97) % 750, 18 + (i % 4) * 14, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Distant Park Hills & Path
+      ctx.fillStyle = timeOfDay === 'night' ? '#1e2c3a' : '#96c9a8';
+      ctx.beginPath();
+      ctx.ellipse(400, 860, 560, 160, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = timeOfDay === 'night' ? '#2c303d' : '#e8dfd5';
+      ctx.beginPath();
+      ctx.moveTo(310, 740); ctx.lineTo(490, 740); ctx.lineTo(740, 1120); ctx.lineTo(60, 1120);
+      ctx.closePath();
+      ctx.fill();
+
+      // Cherry Blossom Canopy Clusters
+      const clusters = [
+        { x: 120, y: 180, r: 190 }, { x: 340, y: 120, r: 210 },
+        { x: 640, y: 170, r: 220 }, { x: 750, y: 340, r: 160 }, { x: 60, y: 350, r: 150 }
+      ];
+      clusters.forEach(cl => {
+        const g = ctx.createRadialGradient(cl.x, cl.y, 20, cl.x, cl.y, cl.r);
+        g.addColorStop(0, '#ffd1e3');
+        g.addColorStop(0.7, '#f79ec4');
+        g.addColorStop(1, 'rgba(247, 158, 196, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cl.x, cl.y, cl.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Falling Petals
+      ctx.fillStyle = '#ffb7d5';
+      for (let p = 0; p < 45; p++) {
+        ctx.save();
+        ctx.translate((p * 73) % CANVAS_W, (p * 113) % CANVAS_H);
+        ctx.rotate(p * 0.5);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 8, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+    } else if (bgId === 'ballroom') {
+      // Royal Fantasy Palace Interior
+      ctx.fillStyle = '#241734';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Ornate Golden Arches & Columns
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = 5;
+      for (let c = 0; c < 4; c++) {
+        const cx = 80 + c * 210;
+        ctx.fillStyle = '#36234d';
+        ctx.fillRect(cx - 24, 160, 48, 720);
+        ctx.strokeRect(cx - 24, 160, 48, 720);
+        // Arch
+        ctx.beginPath();
+        ctx.arc(cx + 105, 240, 105, Math.PI, 0);
+        ctx.stroke();
+      }
+
+      // Chandelier Glow
+      const chand = ctx.createRadialGradient(400, 150, 10, 400, 150, 320);
+      chand.addColorStop(0, 'rgba(255, 238, 173, 0.85)');
+      chand.addColorStop(0.5, 'rgba(212, 175, 55, 0.25)');
+      chand.addColorStop(1, 'rgba(36, 23, 52, 0)');
+      ctx.fillStyle = chand;
+      ctx.fillRect(0, 0, CANVAS_W, 550);
+
+      // Marble Floor
+      ctx.fillStyle = '#e6dce8';
+      ctx.fillRect(0, 860, CANVAS_W, 260);
+      ctx.strokeStyle = '#b69ec2';
+      ctx.lineWidth = 2;
+      for (let fx = -200; fx < CANVAS_W + 200; fx += 90) {
+        ctx.beginPath();
+        ctx.moveTo(400 + (fx - 400) * 0.4, 860);
+        ctx.lineTo(fx, 1120);
+        ctx.stroke();
+      }
+
+    } else if (bgId === 'cafe') {
+      // Warm Wood Cafe Wall & Large Rainy Window
+      ctx.fillStyle = '#3b2c25';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.fillStyle = pal[1];
+      ctx.fillRect(70, 110, 660, 640);
+      ctx.strokeStyle = '#241a15';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(70, 110, 660, 640);
+
+      // Rain droplets on window
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+      ctx.lineWidth = 2;
+      for (let r = 0; r < 60; r++) {
+        const rx = 90 + (r * 91) % 620;
+        const ry = 130 + (r * 67) % 580;
+        ctx.beginPath();
+        ctx.moveTo(rx, ry);
+        ctx.lineTo(rx - 4, ry + 26);
+        ctx.stroke();
+      }
+
+      // Cafe Table & Latte Cup in Foreground
+      ctx.fillStyle = '#5e4132';
+      ctx.beginPath();
+      ctx.ellipse(400, 980, 440, 180, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#241a15';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Ceramic Cup
+      ctx.fillStyle = '#f8f5f0';
+      ctx.beginPath();
+      ctx.arc(540, 890, 38, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+
+    } else {
+      // School Sunset Rooftop
+      ctx.fillStyle = '#525b70';
+      ctx.fillRect(0, 780, CANVAS_W, 340);
+      // Chain-link fence
+      ctx.strokeStyle = 'rgba(30, 34, 45, 0.65)';
+      ctx.lineWidth = 2;
+      for (let fx = 0; fx <= CANVAS_W; fx += 36) {
+        ctx.beginPath(); ctx.moveTo(fx, 360); ctx.lineTo(fx + 140, 780); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(fx + 140, 360); ctx.lineTo(fx, 780); ctx.stroke();
+      }
+      ctx.lineWidth = 8;
+      ctx.strokeRect(0, 360, CANVAS_W, 420);
+    }
+
+    // Rain overlay if night
+    if (timeOfDay === 'night') {
+      ctx.strokeStyle = 'rgba(195, 220, 255, 0.35)';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 95; i++) {
+        const rx = (i * 83) % CANVAS_W;
+        const ry = (i * 129) % CANVAS_H;
+        ctx.beginPath();
+        ctx.moveTo(rx, ry);
+        ctx.lineTo(rx - 14, ry + 48);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  // -------------------- PROCEDURAL KOREAN WEBTOON CHARACTER RENDERER --------------------
+  function drawWebtoonCharacter(ctx, cfg, cx, cy, scale = 1) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    const lineCol = '#1c1824';
+
+    // 1. Back Hair
+    ctx.fillStyle = cfg.hairColor;
+    ctx.strokeStyle = lineCol;
+    ctx.lineWidth = 3.2;
+    ctx.beginPath();
+    if (cfg.hair === 'long') {
+      ctx.moveTo(-115, -60);
+      ctx.quadraticCurveTo(-145, 160, -110, 340);
+      ctx.lineTo(110, 340);
+      ctx.quadraticCurveTo(145, 160, 115, -60);
+    } else {
+      ctx.arc(0, -55, 108, Math.PI * 0.85, Math.PI * 2.15);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 2. Neck & Shoulders / Outfit
+    ctx.fillStyle = cfg.skin;
+    ctx.beginPath();
+    ctx.moveTo(-34, 65);
+    ctx.lineTo(-38, 145);
+    ctx.lineTo(38, 145);
+    ctx.lineTo(34, 65);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Neck Shadow
+    ctx.fillStyle = 'rgba(165, 105, 95, 0.25)';
+    ctx.beginPath();
+    ctx.moveTo(-34, 72); ctx.lineTo(34, 72); ctx.lineTo(20, 112); ctx.lineTo(-26, 105);
+    ctx.closePath();
+    ctx.fill();
+
+    // Outfit Torso
+    ctx.fillStyle = cfg.outfitColor;
+    ctx.beginPath();
+    ctx.moveTo(-38, 130);
+    ctx.quadraticCurveTo(-155, 155, -185, 360);
+    ctx.lineTo(185, 360);
+    ctx.quadraticCurveTo(155, 155, 38, 130);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Outfit Collar Details
+    if (cfg.outfit === 'uniform') {
+      // Crisp white dress shirt & tie
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-38, 130); ctx.lineTo(0, 235); ctx.lineTo(38, 130);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#7a283b';
+      ctx.beginPath();
+      ctx.moveTo(-10, 150); ctx.lineTo(10, 150); ctx.lineTo(14, 245); ctx.lineTo(0, 265); ctx.lineTo(-14, 245);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if (cfg.outfit === 'trench') {
+      // Lapels & Turtleneck
+      ctx.fillStyle = '#1b1b22';
+      ctx.fillRect(-34, 112, 68, 55);
+      ctx.strokeStyle = lineCol;
+      ctx.strokeRect(-34, 112, 68, 55);
+    } else if (cfg.outfit === 'royal') {
+      // Gold trim & cravat
+      ctx.strokeStyle = '#e3c16f';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-45, 140); ctx.lineTo(0, 250); ctx.lineTo(45, 140);
+      ctx.stroke();
+      ctx.fillStyle = '#b8a1e3';
+      ctx.beginPath();
+      ctx.arc(0, 165, 14, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 3. Head & Manhwa Jawline
+    ctx.fillStyle = cfg.skin;
+    ctx.strokeStyle = lineCol;
+    ctx.lineWidth = 3.2;
+    ctx.beginPath();
+    ctx.moveTo(-84, -45);
+    if (cfg.face === 'sharp') {
+      ctx.lineTo(-80, 22);
+      ctx.quadraticCurveTo(-48, 68, 0, 86);
+      ctx.quadraticCurveTo(48, 68, 80, 22);
+    } else if (cfg.face === 'heart') {
+      ctx.quadraticCurveTo(-84, 30, -42, 62);
+      ctx.quadraticCurveTo(0, 82, 0, 82);
+      ctx.quadraticCurveTo(42, 62, 84, 30);
+    } else {
+      ctx.quadraticCurveTo(-86, 40, -35, 70);
+      ctx.quadraticCurveTo(0, 82, 35, 70);
+      ctx.quadraticCurveTo(86, 40, 84, -45);
+    }
+    ctx.lineTo(84, -45);
+    ctx.arc(0, -45, 84, 0, Math.PI, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Soft Cheek & Nose Blush
+    const blushAlpha = cfg.expr === 'blush' ? 0.45 : 0.2;
+    const blushGradL = ctx.createRadialGradient(-44, 16, 2, -44, 16, 26);
+    blushGradL.addColorStop(0, `rgba(238, 118, 142, ${blushAlpha})`);
+    blushGradL.addColorStop(1, 'rgba(238, 118, 142, 0)');
+    ctx.fillStyle = blushGradL;
+    ctx.fillRect(-75, -10, 60, 50);
+
+    const blushGradR = ctx.createRadialGradient(44, 16, 2, 44, 16, 26);
+    blushGradR.addColorStop(0, `rgba(238, 118, 142, ${blushAlpha})`);
+    blushGradR.addColorStop(1, 'rgba(238, 118, 142, 0)');
+    ctx.fillStyle = blushGradR;
+    ctx.fillRect(15, -10, 60, 50);
+
+    // 4. Eyes (Left & Right)
+    [-36, 36].forEach((ex, side) => {
+      const dir = side === 0 ? -1 : 1;
+      const eyeH = cfg.eyes === 'fox' ? 13 : (cfg.eyes === 'wide' ? 20 : 16);
+      const eyeW = 24;
+
+      // Sclera
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(ex, -6, eyeW, eyeH * 0.72, dir * (cfg.eyes === 'fox' ? -0.12 : 0.04), 0, Math.PI * 2);
+      ctx.fill();
+
+      // Iris
+      ctx.fillStyle = cfg.eyeColor;
+      ctx.beginPath();
+      ctx.arc(ex - dir * 2, -5, eyeH * 0.68, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pupil
+      ctx.fillStyle = '#12101a';
+      ctx.beginPath();
+      ctx.arc(ex - dir * 2, -5, eyeH * 0.32, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Luminous Manhwa Eye Catchlights
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(ex - dir * 6, -9, 3.8, 0, Math.PI * 2);
+      ctx.arc(ex + dir * 3, -1, 2.0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Upper Eyelash Line
+      ctx.strokeStyle = lineCol;
+      ctx.lineWidth = 3.8;
+      ctx.beginPath();
+      ctx.moveTo(ex - dir * 25, -4);
+      ctx.quadraticCurveTo(ex, -eyeH - 8, ex + dir * 26, -8);
+      ctx.stroke();
+
+      // Double Eyelid Crease
+      ctx.lineWidth = 1.3;
+      ctx.strokeStyle = 'rgba(60, 35, 45, 0.55)';
+      ctx.beginPath();
+      ctx.moveTo(ex - dir * 18, -eyeH - 7);
+      ctx.quadraticCurveTo(ex, -eyeH - 13, ex + dir * 20, -eyeH - 8);
+      ctx.stroke();
+    });
+
+    // 5. Eyebrows
+    ctx.strokeStyle = cfg.hairColor;
+    ctx.lineWidth = 3.4;
+    [-36, 36].forEach((bx, side) => {
+      const dir = side === 0 ? -1 : 1;
+      ctx.beginPath();
+      if (cfg.brows === 'furrowed') {
+        ctx.moveTo(bx - dir * 22, -26);
+        ctx.lineTo(bx + dir * 22, -34);
+      } else if (cfg.brows === 'soft') {
+        ctx.moveTo(bx - dir * 22, -32);
+        ctx.quadraticCurveTo(bx, -38, bx + dir * 22, -29);
+      } else {
+        ctx.moveTo(bx - dir * 23, -31);
+        ctx.lineTo(bx + dir * 23, -32);
+      }
+      ctx.stroke();
+    });
+
+    // 6. Minimal Korean Webtoon Nose & Lips
+    ctx.strokeStyle = 'rgba(90, 55, 55, 0.65)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-2, 12);
+    ctx.lineTo(-5, 25);
+    ctx.lineTo(1, 27);
+    ctx.stroke();
+
+    // Lips
+    ctx.strokeStyle = '#8c3b4a';
+    ctx.fillStyle = '#e37b8d';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    if (cfg.expr === 'smirk') {
+      ctx.moveTo(-16, 48);
+      ctx.quadraticCurveTo(2, 53, 20, 44);
+      ctx.stroke();
+    } else if (cfg.expr === 'surprised') {
+      ctx.ellipse(0, 50, 9, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.moveTo(-16, 48);
+      ctx.quadraticCurveTo(0, 53, 16, 48);
+      ctx.stroke();
+    }
+
+    // Optional Thin Rimless Glasses (like user's reference!)
+    if (cfg.glasses) {
+      ctx.strokeStyle = '#2c2b33';
+      ctx.lineWidth = 2.2;
+      ctx.strokeRect(-66, -20, 54, 34);
+      ctx.strokeRect(12, -20, 54, 34);
+      ctx.beginPath();
+      ctx.moveTo(-12, -6); ctx.lineTo(12, -6);
+      ctx.stroke();
+    }
+
+    // 7. Front Hair & Bangs
+    ctx.fillStyle = cfg.hairColor;
+    ctx.strokeStyle = lineCol;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-94, -30);
+    ctx.quadraticCurveTo(-102, -125, 0, -132);
+    ctx.quadraticCurveTo(102, -125, 94, -30);
+
+    if (cfg.hair === 'comma') {
+      ctx.lineTo(76, 18);
+      ctx.quadraticCurveTo(64, -32, 34, -38);
+      ctx.quadraticCurveTo(18, 4, -8, 12);
+      ctx.quadraticCurveTo(-12, -32, -38, -42);
+      ctx.quadraticCurveTo(-68, -22, -78, 22);
+    } else if (cfg.hair === 'wolf') {
+      ctx.lineTo(86, 38);
+      ctx.lineTo(62, -24);
+      ctx.lineTo(42, 8);
+      ctx.lineTo(14, -30);
+      ctx.lineTo(-10, 6);
+      ctx.lineTo(-38, -28);
+      ctx.lineTo(-65, 14);
+      ctx.lineTo(-88, 36);
+    } else {
+      ctx.lineTo(84, 52);
+      ctx.quadraticCurveTo(54, -28, 18, -36);
+      ctx.quadraticCurveTo(0, -12, -18, -36);
+      ctx.quadraticCurveTo(-54, -28, -84, 52);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Glossy Korean Webtoon Hair Highlight Halo
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(0, -68, 64, Math.PI * 1.18, Math.PI * 1.82);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // -------------------- INITIAL DEMO EPISODE DATA --------------------
+  function initDefaultEpisode() {
+    const p1 = createPanel(
+      'Panel 01 · Establishing',
+      'Rainy evening at Gangnam intersection. Ji-hoon pauses under the streetlamps.',
+      'Establishing / Medium',
+      '“Even in the pouring rain, I would have recognized you anywhere.”'
+    );
+    renderProceduralBackground(p1.layers[0].ctx, 'street', 'night');
+    drawWebtoonCharacter(p1.layers[1].ctx, state.savedCharacters[0], 410, 560, 1.35);
+    p1.objects.push({
+      id: uid(),
+      kind: 'bubble',
+      style: 'oval',
+      x: 470, y: 150, w: 270, h: 115,
+      text: 'Even in the pouring rain...\nI knew it was you.',
+      font: 'Comic Neue',
+      fontSize: 19,
+      fill: '#ffffff',
+      stroke: '#18181d',
+      tailAngle: 135
+    });
+    p1.objects.push({
+      id: uid(),
+      kind: 'bubble',
+      style: 'sfx',
+      x: 110, y: 310, w: 160, h: 60,
+      text: 'SHHHH—!',
+      font: 'Playfair Display',
+      fontSize: 28,
+      fill: '#ffffff',
+      stroke: '#5a82c9',
+      tailAngle: 90
+    });
+
+    const p2 = createPanel(
+      'Panel 02 · Romantic Reaction',
+      'Close-up on So-yeon turning around beneath cherry blossoms.',
+      'Close-Up',
+      '“Why are you standing here without an umbrella?”'
+    );
+    renderProceduralBackground(p2.layers[0].ctx, 'sakura', 'sakura');
+    drawWebtoonCharacter(p2.layers[1].ctx, state.savedCharacters[1], 390, 540, 1.55);
+    p2.renderGrade = 'romantic';
+    p2.objects.push({
+      id: uid(),
+      kind: 'bubble',
+      style: 'cloud',
+      x: 95, y: 140, w: 255, h: 110,
+      text: 'My heart is beating\nway too fast...',
+      font: 'Comic Neue',
+      fontSize: 18,
+      fill: '#fff5f8',
+      stroke: '#b8768a',
+      tailAngle: 45
+    });
+
+    const p3 = createPanel(
+      'Panel 03 · Classroom Epilogue',
+      'Golden hour sunlight streaming through Seoul classroom windows.',
+      'Wide Shot',
+      'Next morning, Room 2-B.'
+    );
+    renderProceduralBackground(p3.layers[0].ctx, 'classroom', 'sunset');
+    drawWebtoonCharacter(p3.layers[1].ctx, state.savedCharacters[0], 540, 580, 1.25);
+    p3.renderGrade = 'cinematic';
+    p3.objects.push({
+      id: uid(),
+      kind: 'bubble',
+      style: 'narration',
+      x: 75, y: 95, w: 260, h: 74,
+      text: 'THE NEXT MORNING — ROOM 2-B',
+      font: 'Inter',
+      fontSize: 15,
+      fill: '#18181d',
+      stroke: '#b8a1e3',
+      tailAngle: 90
+    });
+
+    state.panels = [p1, p2, p3];
+  }
+
+  // -------------------- COMPOSITE & VECTOR RENDERING ENGINE --------------------
+  const compositeCanvas = document.getElementById('compositeCanvas');
+  const compositeCtx = compositeCanvas.getContext('2d');
+  const overlayCanvas = document.getElementById('overlayCanvas');
+  const overlayCtx = overlayCanvas.getContext('2d');
+
+  function getActivePanel() {
+    return state.panels[state.activePanelIndex];
+  }
+
+  function getActiveLayer() {
+    const p = getActivePanel();
+    return p ? p.layers[p.activeLayerIndex] : null;
+  }
+
+  function renderPanelToTarget(panel, targetCtx, scale = 1) {
+    targetCtx.save();
+    targetCtx.scale(scale, scale);
+    targetCtx.fillStyle = '#ffffff';
+    targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Apply Panel Frame Clipping if layout preset active
+    applyPanelFrameClip(targetCtx, panel.frameLayout);
+
+    // Composite visible raster layers
+    panel.layers.forEach(layer => {
+      if (!layer.visible) return;
+      targetCtx.save();
+      targetCtx.globalAlpha = layer.opacity;
+      targetCtx.globalCompositeOperation = layer.blend;
+      targetCtx.drawImage(layer.canvas, 0, 0);
+      targetCtx.restore();
+    });
+
+    // Non-Destructive Webtoon Rendering Grade & Rim Lighting
+    if (panel.renderGrade && panel.renderGrade !== 'none' && panel.renderIntensity > 0) {
+      targetCtx.save();
+      const alpha = panel.renderIntensity * 0.35;
+      if (panel.renderGrade === 'manhwa') {
+        targetCtx.globalCompositeOperation = 'soft-light';
+        const g = targetCtx.createLinearGradient(0, 0, CANVAS_W, CANVAS_H);
+        g.addColorStop(0, `rgba(255, 240, 230, ${alpha})`);
+        g.addColorStop(1, `rgba(180, 195, 255, ${alpha})`);
+        targetCtx.fillStyle = g;
+        targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      } else if (panel.renderGrade === 'romantic') {
+        targetCtx.globalCompositeOperation = 'screen';
+        const g = targetCtx.createRadialGradient(400, 320, 60, 400, 560, 750);
+        g.addColorStop(0, `rgba(255, 210, 230, ${alpha * 1.1})`);
+        g.addColorStop(1, `rgba(184, 161, 227, ${alpha * 0.5})`);
+        targetCtx.fillStyle = g;
+        targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      } else if (panel.renderGrade === 'cinematic') {
+        targetCtx.globalCompositeOperation = 'overlay';
+        const g = targetCtx.createLinearGradient(0, 0, 0, CANVAS_H);
+        g.addColorStop(0, `rgba(255, 175, 105, ${alpha * 1.1})`);
+        g.addColorStop(1, `rgba(25, 35, 65, ${alpha * 1.2})`);
+        targetCtx.fillStyle = g;
+        targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      } else if (panel.renderGrade === 'fantasy') {
+        targetCtx.globalCompositeOperation = 'screen';
+        const g = targetCtx.createRadialGradient(400, 250, 40, 400, 500, 700);
+        g.addColorStop(0, `rgba(220, 195, 255, ${alpha * 1.2})`);
+        g.addColorStop(1, 'rgba(90, 50, 160, 0)');
+        targetCtx.fillStyle = g;
+        targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      } else if (panel.renderGrade === 'noir') {
+        targetCtx.globalCompositeOperation = 'multiply';
+        targetCtx.fillStyle = `rgba(45, 50, 70, ${alpha * 0.85})`;
+        targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      }
+      targetCtx.restore();
+    }
+
+    // Rim Light Edge Glow
+    if (panel.rimLight > 0) {
+      targetCtx.save();
+      targetCtx.globalCompositeOperation = 'screen';
+      const rim = targetCtx.createLinearGradient(0, 0, CANVAS_W, 0);
+      rim.addColorStop(0, `rgba(255, 228, 196, ${panel.rimLight * 0.35})`);
+      rim.addColorStop(0.2, 'rgba(255,255,255,0)');
+      rim.addColorStop(0.8, 'rgba(255,255,255,0)');
+      rim.addColorStop(1, `rgba(184, 161, 227, ${panel.rimLight * 0.35})`);
+      targetCtx.fillStyle = rim;
+      targetCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      targetCtx.restore();
+    }
+
+    targetCtx.restore(); // End panel clip
+
+    // Draw Panel Frame Borders
+    targetCtx.save();
+    targetCtx.scale(scale, scale);
+    drawPanelFrameBorders(targetCtx, panel.frameLayout);
+
+    // Draw Vector Speech Bubbles, Captions & SFX
+    panel.objects.forEach(obj => {
+      drawVectorSpeechBubble(targetCtx, obj);
+    });
+    targetCtx.restore();
+  }
+
+  function applyPanelFrameClip(ctx, layout) {
+    if (!layout || layout === 'clear' || layout === 'single') return;
+    ctx.beginPath();
+    if (layout === 'split2') {
+      ctx.rect(28, 28, CANVAS_W - 56, 510);
+      ctx.rect(28, 566, CANVAS_W - 56, 526);
+    } else if (layout === 'diagonal') {
+      ctx.moveTo(28, 28); ctx.lineTo(CANVAS_W - 28, 28);
+      ctx.lineTo(CANVAS_W - 28, 490); ctx.lineTo(28, 610);
+      ctx.closePath();
+      ctx.moveTo(28, 638); ctx.lineTo(CANVAS_W - 28, 518);
+      ctx.lineTo(CANVAS_W - 28, CANVAS_H - 28); ctx.lineTo(28, CANVAS_H - 28);
+      ctx.closePath();
+    } else if (layout === 'dramatic3') {
+      ctx.rect(28, 28, CANVAS_W - 56, 330);
+      ctx.rect(28, 382, 360, 340);
+      ctx.rect(412, 382, 360, 340);
+      ctx.rect(28, 746, CANVAS_W - 56, 346);
+    } else if (layout === 'inset') {
+      ctx.rect(28, 28, CANVAS_W - 56, CANVAS_H - 56);
+    }
+    ctx.clip();
+  }
+
+  function drawPanelFrameBorders(ctx, layout) {
+    if (!layout || layout === 'clear') return;
+    ctx.strokeStyle = '#141418';
+    ctx.lineWidth = 4;
+    if (layout === 'single') {
+      ctx.strokeRect(24, 24, CANVAS_W - 48, CANVAS_H - 48);
+    } else if (layout === 'split2') {
+      ctx.strokeRect(28, 28, CANVAS_W - 56, 510);
+      ctx.strokeRect(28, 566, CANVAS_W - 56, 526);
+    } else if (layout === 'diagonal') {
+      ctx.beginPath();
+      ctx.moveTo(28, 28); ctx.lineTo(CANVAS_W - 28, 28);
+      ctx.lineTo(CANVAS_W - 28, 490); ctx.lineTo(28, 610);
+      ctx.closePath(); ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(28, 638); ctx.lineTo(CANVAS_W - 28, 518);
+      ctx.lineTo(CANVAS_W - 28, CANVAS_H - 28); ctx.lineTo(28, CANVAS_H - 28);
+      ctx.closePath(); ctx.stroke();
+    } else if (layout === 'dramatic3') {
+      ctx.strokeRect(28, 28, CANVAS_W - 56, 330);
+      ctx.strokeRect(28, 382, 360, 340);
+      ctx.strokeRect(412, 382, 360, 340);
+      ctx.strokeRect(28, 746, CANVAS_W - 56, 346);
+    } else if (layout === 'inset') {
+      ctx.strokeRect(24, 24, CANVAS_W - 48, CANVAS_H - 48);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(460, 680, 290, 140);
+      ctx.strokeRect(460, 680, 290, 140);
+    }
+  }
+
+  function drawVectorSpeechBubble(ctx, obj) {
+    ctx.save();
+    const cx = obj.x + obj.w / 2;
+    const cy = obj.y + obj.h / 2;
+    const rx = obj.w / 2;
+    const ry = obj.h / 2;
+
+    if (obj.style !== 'sfx') {
+      ctx.fillStyle = obj.fill || '#ffffff';
+      ctx.strokeStyle = obj.stroke || '#18181d';
+      ctx.lineWidth = 3;
+
+      if (obj.style === 'oval') {
+        // Tail pointer
+        const rad = ((obj.tailAngle || 120) * Math.PI) / 180;
+        const tx = cx + Math.cos(rad) * (rx + 36);
+        const ty = cy + Math.sin(rad) * (ry + 36);
+
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Tail triangle
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(rad - 0.22) * (rx * 0.82), cy + Math.sin(rad - 0.22) * (ry * 0.82));
+        ctx.lineTo(tx, ty);
+        ctx.lineTo(cx + Math.cos(rad + 0.22) * (rx * 0.82), cy + Math.sin(rad + 0.22) * (ry * 0.82));
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Mask inner seam
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx - 1.5, ry - 1.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+      } else if (obj.style === 'cloud') {
+        const bumps = 14;
+        ctx.beginPath();
+        for (let i = 0; i <= bumps; i++) {
+          const a = (i / bumps) * Math.PI * 2;
+          const bx = cx + Math.cos(a) * rx;
+          const by = cy + Math.sin(a) * ry;
+          if (i === 0) ctx.moveTo(bx, by);
+          else ctx.quadraticCurveTo(
+            cx + Math.cos(a - 0.22) * (rx + 14),
+            cy + Math.sin(a - 0.22) * (ry + 14),
+            bx, by
+          );
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Thought trail dots
+        const rad = ((obj.tailAngle || 120) * Math.PI) / 180;
+        [1.18, 1.38].forEach((m, idx) => {
+          ctx.beginPath();
+          ctx.arc(cx + Math.cos(rad) * rx * m, cy + Math.sin(rad) * ry * m, 7 - idx * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        });
+
+      } else if (obj.style === 'jagged') {
+        const spikes = 22;
+        ctx.beginPath();
+        for (let i = 0; i < spikes; i++) {
+          const a = (i / spikes) * Math.PI * 2;
+          const mult = i % 2 === 0 ? 1.16 : 0.88;
+          const px = cx + Math.cos(a) * rx * mult;
+          const py = cy + Math.sin(a) * ry * mult;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+      } else if (obj.style === 'narration') {
+        ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+        ctx.strokeRect(obj.x, obj.y, obj.w, obj.h);
+
+      } else if (obj.style === 'whisper') {
+        ctx.setLineDash([6, 5]);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    // Render Dialogue or SFX Typography
+    const fontName = obj.font || 'Comic Neue';
+    const fSize = obj.fontSize || 18;
+    ctx.font = `700 ${fSize}px "${fontName}", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const lines = (obj.text || '').split('\n');
+    const lineHeight = fSize * 1.25;
+    const startY = cy - ((lines.length - 1) * lineHeight) / 2;
+
+    lines.forEach((line, i) => {
+      const ly = startY + i * lineHeight;
+      if (obj.style === 'sfx') {
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = obj.stroke || '#18181d';
+        ctx.strokeText(line, cx, ly);
+        ctx.fillStyle = obj.fill || '#ffffff';
+        ctx.fillText(line, cx, ly);
+      } else {
+        ctx.fillStyle = obj.style === 'narration' && obj.fill === '#18181d' ? '#ffffff' : '#18181d';
+        ctx.fillText(line, cx, ly);
+      }
+    });
+
+    ctx.restore();
+  }
+
+  // -------------------- OVERLAY CANVAS (GUIDES, SELECTION, 3D GHOST) --------------------
+  function renderOverlay() {
+    overlayCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+    const panel = getActivePanel();
+    if (!panel) return;
+
+    // 1. Optional Grid
+    if (state.showGrid) {
+      overlayCtx.save();
+      overlayCtx.strokeStyle = 'rgba(184, 161, 227, 0.22)';
+      overlayCtx.lineWidth = 1;
+      for (let x = 0; x <= CANVAS_W; x += 40) {
+        overlayCtx.beginPath(); overlayCtx.moveTo(x, 0); overlayCtx.lineTo(x, CANVAS_H); overlayCtx.stroke();
+      }
+      for (let y = 0; y <= CANVAS_H; y += 40) {
+        overlayCtx.beginPath(); overlayCtx.moveTo(0, y); overlayCtx.lineTo(CANVAS_W, y); overlayCtx.stroke();
+      }
+      overlayCtx.restore();
+    }
+
+    // 2. Perspective & Symmetry Guides
+    if (state.perspectiveMode !== 'none') {
+      overlayCtx.save();
+      if (state.perspectiveMode === 'sym') {
+        overlayCtx.strokeStyle = '#e8a4b8';
+        overlayCtx.setLineDash([8, 6]);
+        overlayCtx.lineWidth = 2;
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(CANVAS_W / 2, 0);
+        overlayCtx.lineTo(CANVAS_W / 2, CANVAS_H);
+        overlayCtx.stroke();
+      } else {
+        const vps = state.perspectiveMode === '1pt' ? [state.vp1] : [state.vp1, state.vp2];
+        vps.forEach((vp, idx) => {
+          overlayCtx.strokeStyle = idx === 0 ? 'rgba(184, 161, 227, 0.45)' : 'rgba(232, 164, 184, 0.45)';
+          overlayCtx.lineWidth = 1;
+          for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+            overlayCtx.beginPath();
+            overlayCtx.moveTo(vp.x, vp.y);
+            overlayCtx.lineTo(vp.x + Math.cos(a) * 1400, vp.y + Math.sin(a) * 1400);
+            overlayCtx.stroke();
+          }
+          // Vanishing Point Handle
+          overlayCtx.fillStyle = idx === 0 ? '#b8a1e3' : '#e8a4b8';
+          overlayCtx.beginPath();
+          overlayCtx.arc(vp.x, vp.y, 7, 0, Math.PI * 2);
+          overlayCtx.fill();
+        });
+      }
+      overlayCtx.restore();
+    }
+
+    // 3. 3D Pose Mannequin Semi-Transparent Tracing Overlay
+    if (state.show3DOverlay) {
+      overlayCtx.save();
+      overlayCtx.globalAlpha = 0.38;
+      render3DMannequin(overlayCtx, CANVAS_W / 2, CANVAS_H * 0.52, 1.35);
+      overlayCtx.restore();
+    }
+
+    // 4. Beginner Academy Traceable Guidelines
+    if (state.activeAcademyLesson) {
+      renderAcademyTraceGuides(overlayCtx, state.activeAcademyLesson.guideType, state.academyOpacity);
+    }
+
+    // 5. Selected Speech Bubble / Text Bounding Box
+    if (state.selectedObjectId) {
+      const obj = panel.objects.find(o => o.id === state.selectedObjectId);
+      if (obj) {
+        overlayCtx.save();
+        overlayCtx.strokeStyle = '#b8a1e3';
+        overlayCtx.lineWidth = 2;
+        overlayCtx.setLineDash([5, 4]);
+        overlayCtx.strokeRect(obj.x - 4, obj.y - 4, obj.w + 8, obj.h + 8);
+        overlayCtx.setLineDash([]);
+        overlayCtx.fillStyle = '#e8a4b8';
+        overlayCtx.fillRect(obj.x + obj.w - 2, obj.y + obj.h - 2, 10, 10);
+        overlayCtx.restore();
+      }
+    }
+  }
+
+  function renderAcademyTraceGuides(ctx, type, opacity) {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.strokeStyle = '#b8a1e3';
+    ctx.fillStyle = '#b8a1e3';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([8, 6]);
+
+    if (type === 'head') {
+      ctx.beginPath(); ctx.arc(400, 380, 130, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(400, 210); ctx.lineTo(400, 620); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(250, 410); ctx.lineTo(550, 410); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(272, 400); ctx.lineTo(295, 510); ctx.lineTo(400, 600);
+      ctx.lineTo(505, 510); ctx.lineTo(528, 400);
+      ctx.stroke();
+    } else if (type === 'eyes') {
+      [-110, 110].forEach(ox => {
+        ctx.beginPath(); ctx.ellipse(400 + ox, 420, 65, 34, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(400 + ox, 420, 24, 0, Math.PI * 2); ctx.stroke();
+      });
+    } else if (type === 'hair') {
+      ctx.beginPath(); ctx.arc(400, 400, 145, Math.PI, 0); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(400, 255); ctx.quadraticCurveTo(320, 380, 290, 460);
+      ctx.moveTo(400, 255); ctx.quadraticCurveTo(410, 390, 395, 450);
+      ctx.moveTo(400, 255); ctx.quadraticCurveTo(480, 380, 510, 460);
+      ctx.stroke();
+    } else if (type === 'perspective') {
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
+        ctx.beginPath(); ctx.moveTo(400, 450); ctx.lineTo(400 + Math.cos(a) * 600, 450 + Math.sin(a) * 600); ctx.stroke();
+      }
+    } else {
+      ctx.strokeRect(60, 60, 680, 440);
+      ctx.strokeRect(60, 540, 680, 520);
+    }
+    ctx.restore();
+  }
+
+  function refreshAllViews() {
+    const panel = getActivePanel();
+    if (!panel) return;
+    renderPanelToTarget(panel, compositeCtx, 1);
+    renderOverlay();
+    renderRulers();
+    updateTimelineThumbnails();
+    if (state.activeMode === 'reader') renderVerticalScrollReader();
+  }
+
+  // -------------------- RULERS RENDERER --------------------
+  function renderRulers() {
+    const topR = document.getElementById('topRuler');
+    const leftR = document.getElementById('leftRuler');
+    if (!state.showRulers) {
+      topR.classList.add('hidden');
+      leftR.classList.add('hidden');
+      return;
+    }
+    topR.classList.remove('hidden');
+    leftR.classList.remove('hidden');
+
+    topR.width = topR.parentElement.clientWidth - 20;
+    topR.height = 20;
+    const tCtx = topR.getContext('2d');
+    tCtx.fillStyle = '#18181d';
+    tCtx.fillRect(0, 0, topR.width, 20);
+    tCtx.strokeStyle = '#4a4a5a';
+    tCtx.fillStyle = '#8b8b9e';
+    tCtx.font = '9px JetBrains Mono, monospace';
+    for (let x = 0; x < topR.width; x += 20) {
+      const major = x % 100 === 0;
+      tCtx.beginPath();
+      tCtx.moveTo(x, major ? 4 : 12);
+      tCtx.lineTo(x, 20);
+      tCtx.stroke();
+      if (major) tCtx.fillText(String(x), x + 3, 11);
+    }
+
+    leftR.width = 20;
+    leftR.height = leftR.parentElement.clientHeight - 20;
+    const lCtx = leftR.getContext('2d');
+    lCtx.fillStyle = '#18181d';
+    lCtx.fillRect(0, 0, 20, leftR.height);
+    lCtx.strokeStyle = '#4a4a5a';
+    lCtx.fillStyle = '#8b8b9e';
+    lCtx.font = '8px JetBrains Mono, monospace';
+    for (let y = 0; y < leftR.height; y += 20) {
+      const major = y % 100 === 0;
+      lCtx.beginPath();
+      lCtx.moveTo(major ? 4 : 12, y);
+      lCtx.lineTo(20, y);
+      lCtx.stroke();
+      if (major) lCtx.fillText(String(y), 2, y + 9);
+    }
+  }
+
+  // -------------------- ADVANCED MULTI-ENGINE BRUSH DRAWING --------------------
+  let isDrawing = false;
+  let lastPt = null;
+  let smoothPt = null;
+  let dragObj = null;
+  let dragOffset = { x: 0, y: 0 };
+  let isPanning = false;
+  let panStart = { x: 0, y: 0 };
+
+  function getCanvasCoords(e) {
+    const rect = compositeCanvas.getBoundingClientRect();
+    const scaleX = CANVAS_W / rect.width;
+    const scaleY = CANVAS_H / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY,
+      pressure: e.pressure && e.pressure > 0 ? e.pressure : 0.65
+    };
+  }
+
+  function applyBrushDab(ctx, x, y, prevX, prevY, pressure, brush, color) {
+    const size = state.brushSettings.size * (1 - state.brushSettings.taper * 0.45 + pressure * state.brushSettings.taper * 0.65);
+    const alpha = state.brushSettings.opacity * brush.opacity;
+
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, Math.max(0.02, alpha));
+
+    if (brush.type === 'ink' || brush.type === 'flat' || brush.type === 'pencil') {
+      ctx.strokeStyle = color;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = Math.max(0.8, size);
+      if (brush.type === 'pencil') {
+        ctx.setLineDash([1.5, 1.5]);
+      }
+      ctx.beginPath();
+      ctx.moveTo(prevX, prevY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+    } else if (brush.type === 'airbrush') {
+      const r = Math.max(4, size);
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (brush.type === 'painterly') {
+      ctx.fillStyle = color;
+      ctx.translate(x, y);
+      ctx.rotate(Math.atan2(y - prevY, x - prevX));
+      ctx.fillRect(-size / 2, -size * 0.3, size, size * 0.6);
+
+    } else if (brush.type === 'hair') {
+      ctx.strokeStyle = color;
+      ctx.lineCap = 'round';
+      const angle = Math.atan2(y - prevY, x - prevX) + Math.PI / 2;
+      for (let s = -2; s <= 2; s++) {
+        const ox = Math.cos(angle) * s * (size * 0.22);
+        const oy = Math.sin(angle) * s * (size * 0.22);
+        ctx.lineWidth = Math.max(1, (size * 0.16) * (1 - Math.abs(s) * 0.2));
+        ctx.beginPath();
+        ctx.moveTo(prevX + ox, prevY + oy);
+        ctx.lineTo(x + ox, y + oy);
+        ctx.stroke();
+      }
+
+    } else if (brush.type === 'shine') {
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = Math.max(2, size * 0.35);
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(prevX, prevY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+    } else if (brush.type === 'lace') {
+      ctx.strokeStyle = color;
+      ctx.fillStyle = state.secondaryColor;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+    } else if (brush.type === 'booktext') {
+      // Squiggly manuscript line inspired by user's ibisPaint book text reference
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      for (let i = -size; i <= size; i += 4) {
+        const wy = y + Math.sin(i * 0.8 + x) * 2.5;
+        if (i === -size) ctx.moveTo(x + i, wy);
+        else ctx.lineTo(x + i, wy);
+      }
+      ctx.stroke();
+
+    } else if (brush.type === 'necklace') {
+      // Ornate Pearl/Flower Chain inspired by user's reference
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.6;
+      for (let p = 0; p < 5; p++) {
+        const a = (p / 5) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(x + Math.cos(a) * (size * 0.35), y + Math.sin(a) * (size * 0.35), size * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+    } else if (brush.type === 'crowd') {
+      // Perspective-aware pedestrian silhouette stamp
+      const h = size * 2.2;
+      const w = h * 0.36;
+      ctx.fillStyle = 'rgba(45, 48, 62, 0.85)';
+      ctx.strokeStyle = '#18181d';
+      ctx.lineWidth = 2;
+      // Head
+      ctx.beginPath();
+      ctx.arc(x, y - h * 0.42, w * 0.32, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      // Coat / Torso & Legs
+      ctx.beginPath();
+      ctx.roundRect(x - w * 0.45, y - h * 0.3, w * 0.9, h * 0.48, 6);
+      ctx.fill(); ctx.stroke();
+      ctx.fillRect(x - w * 0.32, y + h * 0.18, w * 0.24, h * 0.32);
+      ctx.fillRect(x + w * 0.08, y + h * 0.18, w * 0.24, h * 0.32);
+
+    } else if (brush.type === 'hollow') {
+      // Overlapping white-interior outlined stroke (from user's Webtoon Text Brushes reference)
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size + 5;
+      ctx.beginPath(); ctx.moveTo(prevX, prevY); ctx.lineTo(x, y); ctx.stroke();
+
+      ctx.strokeStyle = state.secondaryColor;
+      ctx.lineWidth = Math.max(1, size - 2);
+      ctx.beginPath(); ctx.moveTo(prevX, prevY); ctx.lineTo(x, y); ctx.stroke();
+
+    } else if (brush.type === 'sparkles') {
+      ctx.fillStyle = '#fff9d6';
+      ctx.strokeStyle = '#e8a4b8';
+      ctx.lineWidth = 1.5;
+      const r = size * 0.55;
+      ctx.beginPath();
+      ctx.moveTo(x, y - r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.quadraticCurveTo(x, y, x, y + r);
+      ctx.quadraticCurveTo(x, y, x - r, y);
+      ctx.quadraticCurveTo(x, y, x, y - r);
+      ctx.fill();
+      ctx.stroke();
+
+    } else if (brush.type === 'foliage') {
+      ctx.fillStyle = '#ffb7d5';
+      ctx.translate(x, y);
+      ctx.rotate(Math.random() * Math.PI);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size * 0.35, size * 0.18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (brush.type === 'rain') {
+      ctx.strokeStyle = 'rgba(210, 230, 255, 0.7)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - size * 0.35, y + size * 1.2);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function floodFill(ctx, startX, startY, fillColorHex) {
+    const sx = Math.floor(startX);
+    const sy = Math.floor(startY);
+    if (sx < 0 || sy < 0 || sx >= CANVAS_W || sy >= CANVAS_H) return;
+
+    const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H);
+    const data = imgData.data;
+    const idx0 = (sy * CANVAS_W + sx) * 4;
+    const targetR = data[idx0], targetG = data[idx0 + 1], targetB = data[idx0 + 2], targetA = data[idx0 + 3];
+
+    const rgb = hexToRgb(fillColorHex);
+    if (targetR === rgb.r && targetG === rgb.g && targetB === rgb.b && targetA === 255) return;
+
+    const tol = 36;
+    const visited = new Uint8Array(CANVAS_W * CANVAS_H);
+    const stack = [sx, sy];
+
+    while (stack.length > 0) {
+      const y = stack.pop();
+      const x = stack.pop();
+      const pos = y * CANVAS_W + x;
+      if (visited[pos]) continue;
+      const i = pos * 4;
+
+      if (
+        Math.abs(data[i] - targetR) <= tol &&
+        Math.abs(data[i + 1] - targetG) <= tol &&
+        Math.abs(data[i + 2] - targetB) <= tol &&
+        Math.abs(data[i + 3] - targetA) <= tol
+      ) {
+        visited[pos] = 1;
+        data[i] = rgb.r;
+        data[i + 1] = rgb.g;
+        data[i + 2] = rgb.b;
+        data[i + 3] = 255;
+
+        if (x > 0) stack.push(x - 1, y);
+        if (x < CANVAS_W - 1) stack.push(x + 1, y);
+        if (y > 0) stack.push(x, y - 1);
+        if (y < CANVAS_H - 1) stack.push(x, y + 1);
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  function hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    const num = parseInt(clean, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  // -------------------- POINTER INTERACTIONS ON CANVAS --------------------
+  const canvasViewport = document.getElementById('canvasViewport');
+
+  canvasViewport.addEventListener('pointerdown', (e) => {
+    const pt = getCanvasCoords(e);
+    const panel = getActivePanel();
+    const layer = getActiveLayer();
+
+    // Hand Pan
+    if (state.activeTool === 'hand' || e.button === 1) {
+      isPanning = true;
+      panStart = { x: e.clientX - state.panX, y: e.clientY - state.panY };
+      return;
+    }
+
+    // Select / Move Speech Bubbles & Text
+    if (state.activeTool === 'select') {
+      const hit = [...panel.objects].reverse().find(o =>
+        pt.x >= o.x && pt.x <= o.x + o.w && pt.y >= o.y && pt.y <= o.y + o.h
+      );
+      if (hit) {
+        state.selectedObjectId = hit.id;
+        dragObj = hit;
+        dragOffset = { x: pt.x - hit.x, y: pt.y - hit.y };
+        openObjectInspector(hit);
+      } else {
+        state.selectedObjectId = null;
+        document.getElementById('floatingObjectInspector').classList.add('hidden');
+      }
+      renderOverlay();
+      return;
+    }
+
+    // Bubble or Text Creation Tool
+    if (state.activeTool === 'bubble' || state.activeTool === 'text') {
+      const newObj = {
+        id: uid(),
+        kind: 'bubble',
+        style: state.activeTool === 'text' ? 'sfx' : 'oval',
+        x: Math.max(20, Math.min(CANVAS_W - 260, pt.x - 120)),
+        y: Math.max(20, Math.min(CANVAS_H - 120, pt.y - 50)),
+        w: 240,
+        h: 100,
+        text: state.activeTool === 'text' ? 'THUMP!' : 'Say something...',
+        font: state.activeTool === 'text' ? 'Playfair Display' : 'Comic Neue',
+        fontSize: state.activeTool === 'text' ? 28 : 18,
+        fill: state.secondaryColor,
+        stroke: state.primaryColor,
+        tailAngle: 125
+      };
+      panel.objects.push(newObj);
+      state.selectedObjectId = newObj.id;
+      openObjectInspector(newObj);
+      pushHistory('Added Dialogue / Text');
+      refreshAllViews();
+      return;
+    }
+
+    // Panel Cutter / Layout Cycler
+    if (state.activeTool === 'panel') {
+      const layouts = ['single', 'split2', 'diagonal', 'dramatic3', 'inset'];
+      const next = layouts[(layouts.indexOf(panel.frameLayout) + 1) % layouts.length];
+      panel.frameLayout = next;
+      pushHistory(`Panel Layout: ${next}`);
+      refreshAllViews();
+      showToast(`Panel layout switched to: ${next.toUpperCase()}`);
+      return;
+    }
+
+    // Eyedropper
+    if (state.activeTool === 'eyedropper') {
+      const px = compositeCtx.getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
+      const hex = '#' + [px[0], px[1], px[2]].map(v => v.toString(16).padStart(2, '0')).join('');
+      setPrimaryColor(hex);
+      showToast(`Sampled colour ${hex.toUpperCase()}`);
+      return;
+    }
+
+    // Paint Bucket Fill
+    if (state.activeTool === 'fill') {
+      if (layer.locked) { showToast('Active layer is locked'); return; }
+      floodFill(layer.ctx, pt.x, pt.y, state.primaryColor);
+      pushHistory('Bucket Fill');
+      refreshAllViews();
+      return;
+    }
+
+    // Brush / Eraser / Shape Stroke
+    if (state.activeTool === 'brush' || state.activeTool === 'eraser' || state.activeTool === 'shape') {
+      if (!layer || layer.locked) { showToast('Active layer is locked'); return; }
+      isDrawing = true;
+      lastPt = pt;
+      smoothPt = { x: pt.x, y: pt.y };
+
+      if (state.activeTool === 'eraser') {
+        layer.ctx.save();
+        layer.ctx.globalCompositeOperation = 'destination-out';
+        layer.ctx.beginPath();
+        layer.ctx.arc(pt.x, pt.y, state.brushSettings.size / 2, 0, Math.PI * 2);
+        layer.ctx.fill();
+        layer.ctx.restore();
+      } else {
+        const brush = BRUSH_LIBRARY.find(b => b.id === state.activeBrushId) || BRUSH_LIBRARY[0];
+        applyBrushDab(layer.ctx, pt.x, pt.y, pt.x, pt.y, pt.pressure, brush, state.primaryColor);
+        if (state.perspectiveMode === 'sym') {
+          applyBrushDab(layer.ctx, CANVAS_W - pt.x, pt.y, CANVAS_W - pt.x, pt.y, pt.pressure, brush, state.primaryColor);
+        }
+      }
+      renderPanelToTarget(panel, compositeCtx, 1);
+    }
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (isPanning) {
+      state.panX = e.clientX - panStart.x;
+      state.panY = e.clientY - panStart.y;
+      updateStageTransform();
+      return;
+    }
+
+    if (dragObj) {
+      const pt = getCanvasCoords(e);
+      dragObj.x = Math.max(0, Math.min(CANVAS_W - dragObj.w, pt.x - dragOffset.x));
+      dragObj.y = Math.max(0, Math.min(CANVAS_H - dragObj.h, pt.y - dragOffset.y));
+      refreshAllViews();
+      return;
+    }
+
+    if (!isDrawing) return;
+    const pt = getCanvasCoords(e);
+    const panel = getActivePanel();
+    const layer = getActiveLayer();
+    const stab = Number(document.getElementById('quickStabSlider').value);
+    const factor = Math.max(0.18, 1 - stab * 0.075);
+
+    smoothPt.x += (pt.x - smoothPt.x) * factor;
+    smoothPt.y += (pt.y - smoothPt.y) * factor;
+
+    const dist = Math.hypot(smoothPt.x - lastPt.x, smoothPt.y - lastPt.y);
+    const brush = BRUSH_LIBRARY.find(b => b.id === state.activeBrushId) || BRUSH_LIBRARY[0];
+    const minStep = Math.max(1, state.brushSettings.size * brush.spacing);
+
+    if (dist >= minStep) {
+      if (state.activeTool === 'eraser') {
+        layer.ctx.save();
+        layer.ctx.globalCompositeOperation = 'destination-out';
+        layer.ctx.strokeStyle = 'rgba(0,0,0,1)';
+        layer.ctx.lineWidth = state.brushSettings.size;
+        layer.ctx.lineCap = 'round';
+        layer.ctx.beginPath();
+        layer.ctx.moveTo(lastPt.x, lastPt.y);
+        layer.ctx.lineTo(smoothPt.x, smoothPt.y);
+        layer.ctx.stroke();
+        layer.ctx.restore();
+      } else {
+        applyBrushDab(layer.ctx, smoothPt.x, smoothPt.y, lastPt.x, lastPt.y, pt.pressure, brush, state.primaryColor);
+        if (state.perspectiveMode === 'sym') {
+          applyBrushDab(layer.ctx, CANVAS_W - smoothPt.x, smoothPt.y, CANVAS_W - lastPt.x, lastPt.y, pt.pressure, brush, state.primaryColor);
+        }
+      }
+      lastPt = { x: smoothPt.x, y: smoothPt.y };
+      renderPanelToTarget(panel, compositeCtx, 1);
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    if (isDrawing) {
+      isDrawing = false;
+      pushHistory('Brush Stroke');
+      updateTimelineThumbnails();
+      triggerAutosave();
+    }
+    if (dragObj) {
+      dragObj = null;
+      triggerAutosave();
+    }
+    isPanning = false;
+  });
+
+  // Wheel Zoom
+  canvasViewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.06 : -0.06;
+    state.zoom = Math.min(2.2, Math.max(0.25, state.zoom + delta));
+    updateStageTransform();
+  }, { passive: false });
+
+  function updateStageTransform() {
+    const stage = document.getElementById('canvasStage');
+    stage.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+    document.getElementById('zoomLabel').textContent = `${Math.round(state.zoom * 100)}%`;
+  }
+
+  // -------------------- 3D MANNEQUIN ARTICULATED RENDERER --------------------
+  function render3DMannequin(ctx, cx, cy, scale = 1) {
+    const p = state.pose3D;
+    const yawRad = (p.yaw * Math.PI) / 180;
+    const pitchRad = (p.pitch * Math.PI) / 180;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    function project(x, y, z) {
+      const rx = x * Math.cos(yawRad) - z * Math.sin(yawRad);
+      const rz = x * Math.sin(yawRad) + z * Math.cos(yawRad);
+      const ry = y * Math.cos(pitchRad) - rz * Math.sin(pitchRad);
+      const persp = 650 / (650 + rz);
+      return { x: rx * persp, y: ry * persp, z: rz, s: persp };
+    }
+
+    const shoulderW = p.body === 'male' ? 62 : 46;
+    const hipW = p.body === 'female' ? 44 : 38;
+    const headScale = p.body === 'chibi' ? 1.35 : 1.0;
+    const torsoTwist = (p.torso * Math.PI) / 180;
+
+    // Key 3D Skeleton Joints
+    const pelvis = project(0, 20, 0);
+    const chest = project(Math.sin(torsoTwist) * 14, -75, 0);
+    const neck = project(Math.sin(torsoTwist) * 16, -102, 0);
+    const head = project(Math.sin(torsoTwist) * 18, -148, 8);
+
+    const lShoulder = project(-shoulderW * Math.cos(torsoTwist), -88, -shoulderW * Math.sin(torsoTwist));
+    const rShoulder = project(shoulderW * Math.cos(torsoTwist), -88, shoulderW * Math.sin(torsoTwist));
+
+    const rArmRad = (p.rArm * Math.PI) / 180;
+    const lArmRad = (p.lArm * Math.PI) / 180;
+
+    const rElbow = project(shoulderW + 24, -88 + Math.cos(rArmRad) * 65, Math.sin(rArmRad) * 65);
+    const rWrist = project(shoulderW + 10, -88 + Math.cos(rArmRad) * 65 - Math.sin(rArmRad) * 58, Math.sin(rArmRad) * 65 + Math.cos(rArmRad) * 45);
+
+    const lElbow = project(-shoulderW - 22, -88 + Math.cos(lArmRad) * 65, Math.sin(lArmRad) * 65);
+    const lWrist = project(-shoulderW - 14, -88 + Math.cos(lArmRad) * 65 - Math.sin(lArmRad) * 55, Math.sin(lArmRad) * 65 + Math.cos(lArmRad) * 35);
+
+    const lHip = project(-hipW * 0.65, 28, 0);
+    const rHip = project(hipW * 0.65, 28, 0);
+    const lKnee = project(-hipW * 0.72, 128, 12);
+    const rKnee = project(hipW * 0.72, 128, -10);
+    const lAnkle = project(-hipW * 0.75, 225, 4);
+    const rAnkle = project(hipW * 0.75, 225, -18);
+
+    function drawLimbSegment(a, b, r1, r2, fill = '#353445') {
+      const grad = ctx.createLinearGradient(a.x - r1, a.y, b.x + r2, b.y);
+      grad.addColorStop(0, '#b8a1e3');
+      grad.addColorStop(0.5, fill);
+      grad.addColorStop(1, '#1b1a24');
+
+      ctx.fillStyle = grad;
+      ctx.strokeStyle = '#e8a4b8';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(a.x - r1, a.y);
+      ctx.lineTo(b.x - r2, b.y);
+      ctx.lineTo(b.x + r2, b.y);
+      ctx.lineTo(a.x + r1, a.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Joint Sphere
+      ctx.fillStyle = '#e8a4b8';
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, r1 * 0.78, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Legs
+    drawLimbSegment(lHip, lKnee, 18, 13);
+    drawLimbSegment(lKnee, lAnkle, 13, 9);
+    drawLimbSegment(rHip, rKnee, 18, 13);
+    drawLimbSegment(rKnee, rAnkle, 13, 9);
+
+    // Pelvis & Ribcage
+    drawLimbSegment(chest, pelvis, shoulderW * 0.68, hipW * 0.78, '#2d2c3d');
+
+    // Arms
+    drawLimbSegment(lShoulder, lElbow, 13, 10);
+    drawLimbSegment(lElbow, lWrist, 10, 7);
+    drawLimbSegment(rShoulder, rElbow, 13, 10);
+    drawLimbSegment(rElbow, rWrist, 10, 7);
+
+    // Head Cranium & Facial Crosshair
+    const hr = 36 * headScale * head.s;
+    const hGrad = ctx.createRadialGradient(head.x - 10, head.y - 12, 4, head.x, head.y, hr);
+    hGrad.addColorStop(0, '#dfd4f5');
+    hGrad.addColorStop(0.6, '#625b7a');
+    hGrad.addColorStop(1, '#232030');
+    ctx.fillStyle = hGrad;
+    ctx.strokeStyle = '#e8a4b8';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(head.x, head.y, hr * 0.86, hr * 1.08, (p.head * Math.PI) / 180, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Facial Centerline on 3D Head
+    const lookOffset = Math.sin(yawRad + (p.head * Math.PI) / 180) * hr * 0.65;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.moveTo(head.x + lookOffset, head.y - hr);
+    ctx.lineTo(head.x + lookOffset, head.y + hr);
+    ctx.moveTo(head.x - hr * 0.85, head.y + 4);
+    ctx.lineTo(head.x + hr * 0.85, head.y + 4);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function refresh3DPoseStudio() {
+    const c = document.getElementById('pose3DCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    // Perspective Floor Grid
+    ctx.strokeStyle = 'rgba(184, 161, 227, 0.16)';
+    ctx.lineWidth = 1;
+    for (let x = -400; x <= 400; x += 50) {
+      ctx.beginPath();
+      ctx.moveTo(c.width / 2 + x * 0.4, 420);
+      ctx.lineTo(c.width / 2 + x * 1.4, 610);
+      ctx.stroke();
+    }
+    for (let y = 420; y <= 610; y += 26) {
+      ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(c.width - 40, y); ctx.stroke();
+    }
+
+    render3DMannequin(ctx, c.width / 2, 290, 1.15);
+  }
+
+  // -------------------- UI POPULATION & BINDINGS --------------------
+  function renderBrushLibrary(filterCat = 'all') {
+    const grid = document.getElementById('brushLibraryGrid');
+    grid.innerHTML = '';
+    const list = filterCat === 'all' ? BRUSH_LIBRARY : BRUSH_LIBRARY.filter(b => b.cat === filterCat);
+
+    list.forEach(brush => {
+      const card = document.createElement('button');
+      card.className = `brush-card p-2 rounded-lg border border-panelborder bg-obsidian/70 hover:border-lavender text-left transition flex flex-col gap-1 ${state.activeBrushId === brush.id ? 'active' : ''}`;
+
+      // Mini live stroke preview canvas
+      const thumb = document.createElement('canvas');
+      thumb.width = 115;
+      thumb.height = 28;
+      thumb.className = 'w-full h-7 rounded bg-[#f5f3f7]';
+      const tCtx = thumb.getContext('2d');
+      tCtx.strokeStyle = '#1e1b29';
+      tCtx.lineWidth = Math.min(7, brush.size * 0.55);
+      tCtx.lineCap = 'round';
+      tCtx.beginPath();
+      tCtx.moveTo(10, 20);
+      tCtx.bezierCurveTo(38, 4, 76, 24, 105, 10);
+      tCtx.stroke();
+
+      const title = document.createElement('div');
+      title.className = 'font-semibold text-[10px] text-white truncate';
+      title.textContent = brush.name;
+
+      const sub = document.createElement('div');
+      sub.className = 'text-[9px] text-gray-400 truncate';
+      sub.textContent = brush.desc;
+
+      card.appendChild(thumb);
+      card.appendChild(title);
+      card.appendChild(sub);
+
+      card.addEventListener('click', () => {
+        state.activeBrushId = brush.id;
+        state.activeTool = 'brush';
+        state.brushSettings = { size: brush.size, opacity: brush.opacity, taper: brush.taper, spacing: brush.spacing };
+        syncBrushSliders();
+        updateToolButtons();
+        renderBrushLibrary(filterCat);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  function syncBrushSliders() {
+    const b = BRUSH_LIBRARY.find(x => x.id === state.activeBrushId) || BRUSH_LIBRARY[0];
+    document.getElementById('activeToolBadge').textContent = `Brush: ${b.name}`;
+    document.getElementById('quickSizeSlider').value = state.brushSettings.size;
+    document.getElementById('quickSizeVal').textContent = `${Math.round(state.brushSettings.size)}px`;
+    document.getElementById('bSizeSlider').value = state.brushSettings.size;
+    document.getElementById('bSizeLabel').textContent = `${Math.round(state.brushSettings.size)} px`;
+
+    const opPct = Math.round(state.brushSettings.opacity * 100);
+    document.getElementById('quickOpacitySlider').value = opPct;
+    document.getElementById('quickOpacityVal').textContent = `${opPct}%`;
+    document.getElementById('bOpacitySlider').value = opPct;
+    document.getElementById('bOpacityLabel').textContent = `${opPct}%`;
+
+    const tapPct = Math.round(state.brushSettings.taper * 100);
+    document.getElementById('bTaperSlider').value = tapPct;
+    document.getElementById('bTaperLabel').textContent = `${tapPct}%`;
+  }
+
+  function renderLayerStack() {
+    const list = document.getElementById('layerStackList');
+    const panel = getActivePanel();
+    if (!panel) return;
+    list.innerHTML = '';
+
+    // Render top-to-bottom visually
+    for (let i = panel.layers.length - 1; i >= 0; i--) {
+      const layer = panel.layers[i];
+      const isAct = i === panel.activeLayerIndex;
+      const row = document.createElement('div');
+      row.className = `flex items-center justify-between px-2 py-1.5 rounded border text-[11px] cursor-pointer ${isAct ? 'bg-lavender/15 border-lavender text-white' : 'bg-slatepanel/60 border-panelborder text-gray-300 hover:border-gray-500'}`;
+
+      row.innerHTML = `
+        <div class="flex items-center gap-2 truncate">
+          <button class="vis-toggle text-xs ${layer.visible ? 'text-lavender' : 'text-gray-600'}" title="Toggle Visibility">${layer.visible ? '👁' : '◌'}</button>
+          <span class="truncate font-medium">${layer.name}</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[9px] text-gray-400">
+          <span>${Math.round(layer.opacity * 100)}%</span>
+          <button class="lock-toggle ${layer.locked ? 'text-blush' : 'text-gray-500'}" title="Lock Layer">${layer.locked ? '🔒' : '🔓'}</button>
+        </div>
+      `;
+
+      row.addEventListener('click', (e) => {
+        if (e.target.classList.contains('vis-toggle')) {
+          layer.visible = !layer.visible;
+          renderLayerStack();
+          refreshAllViews();
+          return;
+        }
+        if (e.target.classList.contains('lock-toggle')) {
+          layer.locked = !layer.locked;
+          renderLayerStack();
+          return;
+        }
+        panel.activeLayerIndex = i;
+        document.getElementById('layerBlendSelect').value = layer.blend;
+        document.getElementById('layerOpacitySlider').value = Math.round(layer.opacity * 100);
+        document.getElementById('layerOpacityVal').textContent = `${Math.round(layer.opacity * 100)}%`;
+        renderLayerStack();
+      });
+
+      list.appendChild(row);
+    }
+  }
+
+  function renderBackgroundLibrary() {
+    const grid = document.getElementById('bgLibraryGrid');
+    grid.innerHTML = '';
+    BACKGROUNDS.forEach(bg => {
+      const btn = document.createElement('button');
+      btn.className = 'p-2 rounded-lg bg-obsidian border border-panelborder hover:border-lavender text-left transition group';
+      btn.innerHTML = `
+        <div class="text-[9px] text-blush uppercase tracking-wider">${bg.tag}</div>
+        <div class="font-semibold text-[11px] text-white group-hover:text-lavender truncate">${bg.name}</div>
+      `;
+      btn.addEventListener('click', () => {
+        const panel = getActivePanel();
+        const tod = document.getElementById('bgTimeOfDaySelect').value;
+        renderProceduralBackground(panel.layers[0].ctx, bg.id, tod);
+        pushHistory(`Applied BG: ${bg.name}`);
+        refreshAllViews();
+        showToast(`Inserted "${bg.name}" (${tod})`);
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  function renderQuickCast() {
+    const grid = document.getElementById('quickCastGrid');
+    grid.innerHTML = '';
+    state.savedCharacters.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'p-2 rounded-lg bg-obsidian border border-panelborder hover:border-blush text-left transition';
+      btn.innerHTML = `
+        <div class="font-semibold text-[11px] text-white truncate">${ch.name}</div>
+        <div class="text-[9px] text-gray-400 capitalize">${ch.outfit} · ${ch.expr}</div>
+      `;
+      btn.addEventListener('click', () => {
+        const panel = getActivePanel();
+        drawWebtoonCharacter(panel.layers[1].ctx, ch, 400, 560, 1.38);
+        pushHistory(`Stamped Character: ${ch.name}`);
+        refreshAllViews();
+        showToast(`Placed ${ch.name} onto Character Layer`);
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  function renderGenrePalettes() {
+    const container = document.getElementById('genrePalettesContainer');
+    container.innerHTML = '';
+    GENRE_PALETTES.forEach(pal => {
+      const block = document.createElement('div');
+      block.className = 'bg-obsidian/70 border border-panelborder rounded-lg p-2 space-y-1.5';
+      block.innerHTML = `<div class="text-[10px] font-semibold text-gray-300">${pal.name}</div>`;
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-8 gap-1';
+      pal.colors.forEach(hex => {
+        const sw = document.createElement('button');
+        sw.className = 'h-6 rounded border border-white/10 hover:scale-110 transition';
+        sw.style.backgroundColor = hex;
+        sw.title = hex;
+        sw.addEventListener('click', () => setPrimaryColor(hex));
+        row.appendChild(sw);
+      });
+      block.appendChild(row);
+      container.appendChild(block);
+    });
+  }
+
+  function setPrimaryColor(hex) {
+    state.primaryColor = hex;
+    document.getElementById('primaryColorPicker').value = hex;
+    document.getElementById('studioColorWheel').value = hex;
+    document.getElementById('hexColorInput').value = hex.toUpperCase();
+  }
+
+  // -------------------- TIMELINE FILMSTRIP --------------------
+  function updateTimelineThumbnails() {
+    const strip = document.getElementById('timelineFilmstrip');
+    strip.innerHTML = '';
+    document.getElementById('panelCountLabel').textContent = `${state.panels.length} Panels in Episode`;
+
+    state.panels.forEach((p, idx) => {
+      const isAct = idx === state.activePanelIndex;
+      const card = document.createElement('div');
+      card.className = `h-full aspect-[800/1120] rounded border-2 flex flex-col justify-between p-1 cursor-pointer relative shrink-0 transition ${isAct ? 'border-blush bg-blush/10 shadow-lg' : 'border-panelborder bg-obsidian hover:border-lavender'}`;
+
+      const thumb = document.createElement('canvas');
+      thumb.width = 64;
+      thumb.height = 90;
+      thumb.className = 'w-full h-full object-cover rounded-sm bg-white';
+      renderPanelToTarget(p, thumb.getContext('2d'), 64 / CANVAS_W);
+
+      const badge = document.createElement('div');
+      badge.className = `absolute bottom-1 left-1 right-1 px-1 rounded text-[9px] font-mono truncate ${isAct ? 'bg-blush text-obsidian font-bold' : 'bg-black/75 text-white'}`;
+      badge.textContent = `#${idx + 1} ${p.title}`;
+
+      card.appendChild(thumb);
+      card.appendChild(badge);
+      card.addEventListener('click', () => {
+        state.activePanelIndex = idx;
+        state.selectedObjectId = null;
+        document.getElementById('floatingObjectInspector').classList.add('hidden');
+        document.getElementById('renderStyleSelect').value = p.renderGrade || 'none';
+        renderLayerStack();
+        refreshAllViews();
+      });
+
+      strip.appendChild(card);
+    });
+  }
+
+  // -------------------- STORYBOARD PLANNER VIEW --------------------
+  function renderStoryboardView() {
+    const grid = document.getElementById('storyboardGrid');
+    grid.innerHTML = '';
+
+    state.panels.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.className = 'bg-charcoal border border-panelborder rounded-xl p-3.5 flex flex-col gap-2.5 shadow-lg';
+
+      const top = document.createElement('div');
+      top.className = 'flex items-center justify-between';
+      top.innerHTML = `
+        <span class="font-bold text-xs text-lavender">PANEL ${String(idx + 1).padStart(2, '0')}</span>
+        <select class="sb-shot-select bg-obsidian border border-panelborder rounded px-2 py-0.5 text-[10px] text-blush">
+          <option ${p.shotType === 'Establishing / Medium' ? 'selected' : ''}>Establishing / Medium</option>
+          <option ${p.shotType === 'Close-Up' ? 'selected' : ''}>Close-Up</option>
+          <option ${p.shotType === 'Extreme Close-Up (Eyes)' ? 'selected' : ''}>Extreme Close-Up (Eyes)</option>
+          <option ${p.shotType === 'Over-the-Shoulder' ? 'selected' : ''}>Over-the-Shoulder</option>
+          <option ${p.shotType === 'Low Angle Dramatic' ? 'selected' : ''}>Low Angle Dramatic</option>
+          <option ${p.shotType === 'Wide Shot' ? 'selected' : ''}>Wide Shot</option>
+        </select>
+      `;
+
+      const preview = document.createElement('canvas');
+      preview.width = 240;
+      preview.height = 336;
+      preview.className = 'w-full h-44 object-contain bg-obsidian rounded border border-panelborder';
+      renderPanelToTarget(p, preview.getContext('2d'), 240 / CANVAS_W);
+
+      const notesInput = document.createElement('textarea');
+      notesInput.rows = 2;
+      notesInput.value = p.notes;
+      notesInput.placeholder = 'Scene action & emotional beat...';
+      notesInput.className = 'w-full bg-obsidian border border-panelborder rounded p-1.5 text-[11px] text-gray-200 focus:outline-none focus:border-lavender';
+      notesInput.addEventListener('input', () => { p.notes = notesInput.value; });
+
+      const scriptInput = document.createElement('input');
+      scriptInput.type = 'text';
+      scriptInput.value = p.dialogueScript;
+      scriptInput.placeholder = 'Dialogue / Caption script...';
+      scriptInput.className = 'w-full bg-obsidian border border-panelborder rounded px-2 py-1 text-[11px] text-blush';
+      scriptInput.addEventListener('input', () => { p.dialogueScript = scriptInput.value; });
+
+      const sendBtn = document.createElement('button');
+      sendBtn.className = 'w-full py-1.5 rounded bg-lavender/20 hover:bg-lavender hover:text-obsidian border border-lavender/50 text-lavender font-semibold text-[11px] transition';
+      sendBtn.textContent = 'Open Panel in Illustration Canvas →';
+      sendBtn.addEventListener('click', () => {
+        state.activePanelIndex = idx;
+        switchWorkspaceMode('studio');
+      });
+
+      card.appendChild(top);
+      card.appendChild(preview);
+      card.appendChild(notesInput);
+      card.appendChild(scriptInput);
+      card.appendChild(sendBtn);
+      grid.appendChild(card);
+    });
+  }
+
+  // -------------------- CHARACTER LAB PREVIEW --------------------
+  function getCharacterFormConfig() {
+    return {
+      name: document.getElementById('charNameInput').value || 'Original Character',
+      face: document.getElementById('charFaceSelect').value,
+      eyes: document.getElementById('charEyesSelect').value,
+      brows: document.getElementById('charBrowsSelect').value,
+      expr: document.getElementById('charExprSelect').value,
+      hair: document.getElementById('charHairSelect').value,
+      outfit: document.getElementById('charOutfitSelect').value,
+      skin: document.getElementById('charSkinColor').value,
+      hairColor: document.getElementById('charHairColor').value,
+      eyeColor: document.getElementById('charEyeColor').value,
+      outfitColor: document.getElementById('charOutfitColor').value,
+      glasses: document.getElementById('charGlassesCheck').checked
+    };
+  }
+
+  function refreshCharacterPreview() {
+    const c = document.getElementById('characterPreviewCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, c.width, c.height);
+    const cfg = getCharacterFormConfig();
+    drawWebtoonCharacter(ctx, cfg, c.width / 2, 230, 1.05);
+  }
+
+  function renderSavedCharactersList() {
+    const list = document.getElementById('savedCharactersList');
+    list.innerHTML = '';
+    state.savedCharacters.forEach((ch, idx) => {
+      const item = document.createElement('div');
+      item.className = 'flex items-center justify-between bg-obsidian border border-panelborder rounded px-2.5 py-1.5 text-[11px]';
+      item.innerHTML = `
+        <div>
+          <span class="font-semibold text-white">${ch.name}</span>
+          <span class="text-gray-400 text-[10px] ml-1.5 capitalize">${ch.outfit}</span>
+        </div>
+        <button class="text-lavender hover:underline text-[10px]">Load</button>
+      `;
+      item.querySelector('button').addEventListener('click', () => {
+        document.getElementById('charNameInput').value = ch.name;
+        document.getElementById('charFaceSelect').value = ch.face;
+        document.getElementById('charEyesSelect').value = ch.eyes;
+        document.getElementById('charBrowsSelect').value = ch.brows;
+        document.getElementById('charExprSelect').value = ch.expr;
+        document.getElementById('charHairSelect').value = ch.hair;
+        document.getElementById('charOutfitSelect').value = ch.outfit;
+        document.getElementById('charSkinColor').value = ch.skin;
+        document.getElementById('charHairColor').value = ch.hairColor;
+        document.getElementById('charEyeColor').value = ch.eyeColor;
+        document.getElementById('charOutfitColor').value = ch.outfitColor;
+        document.getElementById('charGlassesCheck').checked = !!ch.glasses;
+        refreshCharacterPreview();
+      });
+      list.appendChild(item);
+    });
+  }
+
+  // -------------------- ACADEMY VIEW --------------------
+  function renderAcademyView() {
+    const grid = document.getElementById('academyLessonsGrid');
+    grid.innerHTML = '';
+    document.getElementById('academyProgressText').textContent = `${state.completedLessons.length} / ${ACADEMY_LESSONS.length} Modules`;
+
+    ACADEMY_LESSONS.forEach((les, idx) => {
+      const done = state.completedLessons.includes(les.id);
+      const card = document.createElement('div');
+      card.className = 'bg-charcoal border border-panelborder hover:border-blush rounded-xl p-4 flex flex-col justify-between gap-3 transition';
+      card.innerHTML = `
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono text-lavender">MODULE 0${idx + 1}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded ${done ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slatepanel text-gray-400'}">${done ? '✓ Completed' : 'Guided Trace'}</span>
+          </div>
+          <h3 class="font-bold text-sm text-white mb-1">${les.title}</h3>
+          <p class="text-xs text-gray-400 leading-relaxed">${les.desc}</p>
+        </div>
+        <button class="w-full py-2 rounded bg-blush/20 hover:bg-blush hover:text-obsidian border border-blush/50 text-blush font-semibold text-xs transition">
+          Start Interactive Practice on Canvas →
+        </button>
+      `;
+      card.querySelector('button').addEventListener('click', () => {
+        state.activeAcademyLesson = les;
+        if (!state.completedLessons.includes(les.id)) state.completedLessons.push(les.id);
+        document.getElementById('academyLessonStepLabel').textContent = `ACADEMY MODULE 0${idx + 1}`;
+        document.getElementById('academyLessonTitle').textContent = les.title;
+        document.getElementById('academyLessonDesc').textContent = les.desc;
+        document.getElementById('academyBanner').classList.remove('hidden');
+        switchWorkspaceMode('studio');
+        renderOverlay();
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  // -------------------- VERTICAL WEBTOON SCROLL READER --------------------
+  function renderVerticalScrollReader() {
+    const container = document.getElementById('verticalScrollContainer');
+    container.innerHTML = '';
+    document.getElementById('readerEpisodeTitle').textContent = state.episodeTitle;
+
+    state.panels.forEach(p => {
+      const c = document.createElement('canvas');
+      c.width = CANVAS_W;
+      c.height = CANVAS_H;
+      c.className = 'w-full block';
+      renderPanelToTarget(p, c.getContext('2d'), 1);
+      container.appendChild(c);
+    });
+  }
+
+  // -------------------- OBJECT INSPECTOR (SPEECH BUBBLES & SFX) --------------------
+  function openObjectInspector(obj) {
+    const box = document.getElementById('floatingObjectInspector');
+    box.classList.remove('hidden');
+    document.getElementById('selectedObjText').value = obj.text;
+    document.getElementById('selectedBubbleStyle').value = obj.style;
+    document.getElementById('selectedObjFont').value = obj.font;
+    document.getElementById('objFillColor').value = obj.fill;
+    document.getElementById('objStrokeColor').value = obj.stroke;
+    document.getElementById('objFontSize').value = obj.fontSize;
+    document.getElementById('objTailAngle').value = obj.tailAngle || 120;
+  }
+
+  // -------------------- WORKSPACE MODE SWITCHER --------------------
+  function switchWorkspaceMode(mode) {
+    state.activeMode = mode;
+    document.querySelectorAll('.mode-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mode === mode);
+      if (btn.dataset.mode !== mode) btn.classList.add('text-gray-300');
+      else btn.classList.remove('text-gray-300');
+    });
+
+    ['studio', 'storyboard', 'pose3d', 'character', 'academy', 'reader'].forEach(v => {
+      document.getElementById(`view-${v}`).classList.toggle('hidden', v !== mode);
+    });
+
+    if (mode === 'storyboard') renderStoryboardView();
+    if (mode === 'pose3d') refresh3DPoseStudio();
+    if (mode === 'character') { refreshCharacterPreview(); renderSavedCharactersList(); }
+    if (mode === 'academy') renderAcademyView();
+    if (mode === 'reader') renderVerticalScrollReader();
+    if (mode === 'studio') refreshAllViews();
+  }
+
+  function updateToolButtons() {
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tool === state.activeTool);
+    });
+  }
+
+  // -------------------- HISTORY & AUTOSAVE --------------------
+  function pushHistory(label) {
+    state.history.unshift(`${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — ${label}`);
+    if (state.history.length > 20) state.history.pop();
+    renderHistoryDropdown();
+  }
+
+  function renderHistoryDropdown() {
+    const list = document.getElementById('historyList');
+    list.innerHTML = state.history.map(h => `<div class="px-1.5 py-1 rounded bg-obsidian/70 truncate">${h}</div>`).join('');
+  }
+
+  function triggerAutosave() {
+    try {
+      const payload = {
+        projectTitle: state.projectTitle,
+        episodeTitle: state.episodeTitle,
+        savedAt: Date.now()
+      };
+      localStorage.setItem('atelier_seoul_meta', JSON.stringify(payload));
+      const status = document.getElementById('autosaveStatus');
+      status.querySelector('span:last-child').textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { /* Ignore quota errors */ }
+  }
+
+  // -------------------- PURE-JS BINARY HIGH-DEFINITION PDF GENERATOR --------------------
+  /**
+   * Generates a valid, standards-compliant PDF 1.4 binary Blob containing high-resolution
+   * JPEG streams of every rendered webtoon panel—completely offline with zero CDN dependency.
+   */
+  function buildBinaryPdfFromCanvases(canvases) {
+    const encoder = new TextEncoder();
+    const chunks = [];
+    let byteOffset = 0;
+    const xrefOffsets = [0]; // Object 0 is free
+
+    function writeStr(str) {
+      const bytes = encoder.encode(str);
+      chunks.push(bytes);
+      byteOffset += bytes.length;
+    }
+
+    function writeBytes(uint8) {
+      chunks.push(uint8);
+      byteOffset += uint8.length;
+    }
+
+    function startObj(id) {
+      xrefOffsets[id] = byteOffset;
+      writeStr(`${id} 0 obj\n`);
+    }
+
+    writeStr('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+
+    // Object 1: Catalog, Object 2: Pages
+    const pageIds = [];
+    let nextObjId = 3;
+
+    const pageEntries = canvases.map((c, idx) => {
+      const dataUrl = c.toDataURL('image/jpeg', 0.94);
+      const b64 = dataUrl.split(',')[1];
+      const rawBin = atob(b64);
+      const imgBytes = new Uint8Array(rawBin.length);
+      for (let i = 0; i < rawBin.length; i++) imgBytes[i] = rawBin.charCodeAt(i);
+
+      const pageId = nextObjId++;
+      const contentId = nextObjId++;
+      const imgId = nextObjId++;
+      pageIds.push(pageId);
+
+      return { pageId, contentId, imgId, w: c.width, h: c.height, imgBytes, name: `Im${idx + 1}` };
+    });
+
+    // Obj 1: Catalog
+    startObj(1);
+    writeStr('<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+
+    // Obj 2: Pages
+    startObj(2);
+    writeStr(`<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(' ')}] /Count ${pageIds.length} >>\nendobj\n`);
+
+    // Each Page + Content Stream + Image XObject
+    pageEntries.forEach(pe => {
+      // Scale PDF page points neatly (e.g., 595pt width proportional height)
+      const pdfW = 595.28;
+      const pdfH = Number(((pe.h / pe.w) * pdfW).toFixed(2));
+
+      startObj(pe.pageId);
+      writeStr(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pdfW} ${pdfH}] /Resources << /XObject << /${pe.name} ${pe.imgId} 0 R >> >> /Contents ${pe.contentId} 0 R >>\nendobj\n`);
+
+      const streamCmd = `q\n${pdfW} 0 0 ${pdfH} 0 0 cm\n/${pe.name} Do\nQ\n`;
+      startObj(pe.contentId);
+      writeStr(`<< /Length ${streamCmd.length} >>\nstream\n${streamCmd}endstream\nendobj\n`);
+
+      startObj(pe.imgId);
+      writeStr(`<< /Type /XObject /Subtype /Image /Width ${pe.w} /Height ${pe.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pe.imgBytes.length} >>\nstream\n`);
+      writeBytes(pe.imgBytes);
+      writeStr('\nendstream\nendobj\n');
+    });
+
+    const xrefStart = byteOffset;
+    writeStr(`xref\n0 ${nextObjId}\n`);
+    writeStr('0000000000 65535 f \n');
+    for (let i = 1; i < nextObjId; i++) {
+      writeStr(`${String(xrefOffsets[i]).padStart(10, '0')} 00000 n \n`);
+    }
+
+    writeStr(`trailer\n<< /Size ${nextObjId} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
+    return new Blob(chunks, { type: 'application/pdf' });
+  }
+
+  function triggerBlobDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  // -------------------- EXPORT MODAL & EXECUTION --------------------
+  function openExportStudio() {
+    const modal = document.getElementById('exportModal');
+    modal.classList.remove('hidden');
+    updateExportStats();
+
+    const prev = document.getElementById('exportPreviewCanvas');
+    renderPanelToTarget(getActivePanel(), prev.getContext('2d'), prev.width / CANVAS_W);
+  }
+
+  function updateExportStats() {
+    const fmt = document.getElementById('exportFormatSelect').value;
+    const scale = Number(document.getElementById('exportDpiSelect').value);
+    const isMulti = fmt === 'pdf-episode' || fmt === 'png-scroll';
+    const count = isMulti ? state.panels.length : 1;
+
+    document.getElementById('expPanelCount').textContent = `${count} Panel${count > 1 ? 's' : ''}`;
+    document.getElementById('expDimensions').textContent = fmt === 'png-scroll'
+      ? `${CANVAS_W * scale} × ${CANVAS_H * scale * count} px`
+      : `${CANVAS_W * scale} × ${CANVAS_H * scale} px`;
+    document.getElementById('expEstSize').textContent = `~${(count * scale * 0.65).toFixed(1)} MB`;
+  }
+
+  async function executeExport() {
+    const fmt = document.getElementById('exportFormatSelect').value;
+    const scale = Number(document.getElementById('exportDpiSelect').value);
+    const layoutMode = document.getElementById('exportLayoutSelect').value;
+    const safeTitle = (state.episodeTitle || 'Webtoon_Episode').replace(/[^a-z0-9_-]/gi, '_');
+
+    const progWrap = document.getElementById('exportProgressWrap');
+    const progBar = document.getElementById('exportProgressBar');
+    const progPct = document.getElementById('exportProgressPct');
+    progWrap.classList.remove('hidden');
+
+    const setProg = (pct) => {
+      progBar.style.width = `${pct}%`;
+      progPct.textContent = `${pct}%`;
+    };
+
+    setProg(20);
+    await new Promise(r => setTimeout(r, 80));
+
+    if (fmt === 'json-project') {
+      const jsonStr = JSON.stringify({
+        studio: 'ATELIER SEOUL',
+        projectTitle: state.projectTitle,
+        episodeTitle: state.episodeTitle,
+        panels: state.panels.map(p => ({
+          title: p.title, notes: p.notes, shotType: p.shotType,
+          frameLayout: p.frameLayout, renderGrade: p.renderGrade, objects: p.objects
+        }))
+      }, null, 2);
+      setProg(100);
+      triggerBlobDownload(new Blob([jsonStr], { type: 'application/json' }), `${safeTitle}.json`);
+      showToast('Project JSON downloaded!');
+      return;
+    }
+
+    const targetPanels = (fmt === 'pdf-episode' || fmt === 'png-scroll') ? state.panels : [getActivePanel()];
+    const renderedCanvases = [];
+
+    for (let i = 0; i < targetPanels.length; i++) {
+      const hd = document.createElement('canvas');
+      hd.width = CANVAS_W * scale;
+      hd.height = CANVAS_H * scale;
+      renderPanelToTarget(targetPanels[i], hd.getContext('2d'), scale);
+      renderedCanvases.push(hd);
+      setProg(25 + Math.round(((i + 1) / targetPanels.length) * 55));
+      await new Promise(r => setTimeout(r, 40));
+    }
+
+    if (fmt === 'png-panel' || fmt === 'jpg-panel') {
+      const mime = fmt === 'png-panel' ? 'image/png' : 'image/jpeg';
+      const ext = fmt === 'png-panel' ? 'png' : 'jpg';
+      renderedCanvases[0].toBlob(blob => {
+        setProg(100);
+        triggerBlobDownload(blob, `${safeTitle}_Panel_${state.activePanelIndex + 1}.${ext}`);
+        showToast(`HD ${ext.toUpperCase()} exported!`);
+      }, mime, 0.95);
+      return;
+    }
+
+    if (fmt === 'png-scroll') {
+      const strip = document.createElement('canvas');
+      strip.width = CANVAS_W * scale;
+      strip.height = CANVAS_H * scale * renderedCanvases.length;
+      const sCtx = strip.getContext('2d');
+      renderedCanvases.forEach((rc, idx) => sCtx.drawImage(rc, 0, idx * CANVAS_H * scale));
+      strip.toBlob(blob => {
+        setProg(100);
+        triggerBlobDownload(blob, `${safeTitle}_Full_Scroll.png`);
+        showToast('Full Vertical Webtoon PNG exported!');
+      }, 'image/png');
+      return;
+    }
+
+    // HD PDF Export (Multi-page or Continuous Vertical Sheet)
+    let pdfCanvases = renderedCanvases;
+    if (fmt === 'pdf-episode' && layoutMode === 'continuous') {
+      const strip = document.createElement('canvas');
+      strip.width = CANVAS_W * scale;
+      strip.height = CANVAS_H * scale * renderedCanvases.length;
+      const sCtx = strip.getContext('2d');
+      renderedCanvases.forEach((rc, idx) => sCtx.drawImage(rc, 0, idx * CANVAS_H * scale));
+      pdfCanvases = [strip];
+    }
+
+    const pdfBlob = buildBinaryPdfFromCanvases(pdfCanvases);
+    setProg(100);
+    triggerBlobDownload(pdfBlob, `${safeTitle}_HD.pdf`);
+    showToast('High-Definition Webtoon PDF downloaded!');
+  }
+
+  // -------------------- EVENT LISTENERS INITIALIZATION --------------------
+  function bindEvents() {
+    // Workspace Mode Switcher
+    document.querySelectorAll('.mode-pill').forEach(btn => {
+      btn.addEventListener('click', () => switchWorkspaceMode(btn.dataset.mode));
+    });
+
+    // Left Toolbar Tools
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.activeTool = btn.dataset.tool;
+        updateToolButtons();
+        document.getElementById('activeToolBadge').textContent = `Tool: ${state.activeTool.toUpperCase()}`;
+      });
+    });
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+      const map = { v: 'select', l: 'lasso', b: 'brush', e: 'eraser', g: 'fill', i: 'eyedropper', p: 'panel', s: 'bubble', t: 'text', u: 'shape', h: 'hand' };
+      const k = e.key.toLowerCase();
+      if (map[k]) {
+        state.activeTool = map[k];
+        updateToolButtons();
+      } else if (k === 'x') {
+        document.getElementById('swapColorsBtn').click();
+      }
+    });
+
+    // Color Pickers
+    document.getElementById('primaryColorPicker').addEventListener('input', (e) => setPrimaryColor(e.target.value));
+    document.getElementById('secondaryColorPicker').addEventListener('input', (e) => { state.secondaryColor = e.target.value; });
+    document.getElementById('studioColorWheel').addEventListener('input', (e) => setPrimaryColor(e.target.value));
+    document.getElementById('hexColorInput').addEventListener('change', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) setPrimaryColor(e.target.value);
+    });
+    document.getElementById('swapColorsBtn').addEventListener('click', () => {
+      const tmp = state.primaryColor;
+      setPrimaryColor(state.secondaryColor);
+      state.secondaryColor = tmp;
+      document.getElementById('secondaryColorPicker').value = tmp;
+    });
+
+    // Brush Sliders
+    const bindSize = (val) => {
+      state.brushSettings.size = Number(val);
+      syncBrushSliders();
+    };
+    const bindOp = (val) => {
+      state.brushSettings.opacity = Number(val) / 100;
+      syncBrushSliders();
+    };
+    document.getElementById('quickSizeSlider').addEventListener('input', e => bindSize(e.target.value));
+    document.getElementById('bSizeSlider').addEventListener('input', e => bindSize(e.target.value));
+    document.getElementById('quickOpacitySlider').addEventListener('input', e => bindOp(e.target.value));
+    document.getElementById('bOpacitySlider').addEventListener('input', e => bindOp(e.target.value));
+    document.getElementById('bTaperSlider').addEventListener('input', e => {
+      state.brushSettings.taper = Number(e.target.value) / 100;
+      syncBrushSliders();
+    });
+    document.getElementById('bSpacingSlider').addEventListener('input', e => {
+      state.brushSettings.spacing = Number(e.target.value) / 100;
+      document.getElementById('bSpacingLabel').textContent = `${e.target.value}%`;
+    });
+    document.getElementById('quickStabSlider').addEventListener('input', e => {
+      document.getElementById('quickStabVal').textContent = e.target.value;
+    });
+
+    // Brush Category Pills
+    document.querySelectorAll('.bcat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.bcat-btn').forEach(b => {
+          b.classList.remove('bg-lavender', 'text-obsidian', 'font-semibold');
+          b.classList.add('bg-slatepanel', 'text-gray-300');
+        });
+        btn.classList.add('bg-lavender', 'text-obsidian', 'font-semibold');
+        btn.classList.remove('bg-slatepanel', 'text-gray-300');
+        renderBrushLibrary(btn.dataset.bcat);
+      });
+    });
+
+    // Right Sidebar Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.classList.add('text-gray-400');
+        });
+        btn.classList.add('active');
+        btn.classList.remove('text-gray-400');
+        ['brushes', 'layers', 'assets', 'color'].forEach(t => {
+          document.getElementById(`rtab-${t}`).classList.toggle('hidden', t !== btn.dataset.rtab);
+        });
+      });
+    });
+
+    // Quick Speech Bubble Buttons
+    document.querySelectorAll('.quick-bubble-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const style = btn.dataset.addbubble;
+        const panel = getActivePanel();
+        const obj = {
+          id: uid(),
+          kind: 'bubble',
+          style,
+          x: 240, y: 220, w: 250, h: 105,
+          text: style === 'sfx' ? 'DOKI DOKI ✦' : (style === 'narration' ? 'Meanwhile in Seoul...' : 'Wait for me!'),
+          font: style === 'sfx' ? 'Playfair Display' : 'Comic Neue',
+          fontSize: style === 'sfx' ? 28 : 18,
+          fill: style === 'narration' ? '#18181d' : '#ffffff',
+          stroke: style === 'sfx' ? '#e8a4b8' : '#18181d',
+          tailAngle: 120
+        };
+        panel.objects.push(obj);
+        state.selectedObjectId = obj.id;
+        openObjectInspector(obj);
+        refreshAllViews();
+      });
+    });
+
+    // Floating Object Inspector Controls
+    document.getElementById('selectedObjText').addEventListener('input', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.text = e.target.value; refreshAllViews(); }
+    });
+    document.getElementById('selectedBubbleStyle').addEventListener('change', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.style = e.target.value; refreshAllViews(); }
+    });
+    document.getElementById('selectedObjFont').addEventListener('change', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.font = e.target.value; refreshAllViews(); }
+    });
+    document.getElementById('objFillColor').addEventListener('input', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.fill = e.target.value; refreshAllViews(); }
+    });
+    document.getElementById('objStrokeColor').addEventListener('input', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.stroke = e.target.value; refreshAllViews(); }
+    });
+    document.getElementById('objFontSize').addEventListener('input', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.fontSize = Number(e.target.value); refreshAllViews(); }
+    });
+    document.getElementById('objTailAngle').addEventListener('input', e => {
+      const obj = getActivePanel().objects.find(o => o.id === state.selectedObjectId);
+      if (obj) { obj.tailAngle = Number(e.target.value); refreshAllViews(); }
+    });
+    document.getElementById('deleteSelectedObjBtn').addEventListener('click', () => {
+      const p = getActivePanel();
+      p.objects = p.objects.filter(o => o.id !== state.selectedObjectId);
+      state.selectedObjectId = null;
+      document.getElementById('floatingObjectInspector').classList.add('hidden');
+      refreshAllViews();
+    });
+
+    // Layer Controls
+    document.getElementById('addLayerBtn').addEventListener('click', () => {
+      const p = getActivePanel();
+      p.layers.push(createOffscreenLayer(`Sketch / Ink ${p.layers.length + 1}`));
+      p.activeLayerIndex = p.layers.length - 1;
+      renderLayerStack();
+      showToast('Added new transparent layer');
+    });
+    document.getElementById('delLayerBtn').addEventListener('click', () => {
+      const p = getActivePanel();
+      if (p.layers.length <= 1) { showToast('Cannot delete last layer'); return; }
+      p.layers.splice(p.activeLayerIndex, 1);
+      p.activeLayerIndex = Math.max(0, p.activeLayerIndex - 1);
+      renderLayerStack();
+      refreshAllViews();
+    });
+    document.getElementById('mergeDownBtn').addEventListener('click', () => {
+      const p = getActivePanel();
+      if (p.activeLayerIndex <= 0) return;
+      const top = p.layers[p.activeLayerIndex];
+      const below = p.layers[p.activeLayerIndex - 1];
+      below.ctx.save();
+      below.ctx.globalAlpha = top.opacity;
+      below.ctx.globalCompositeOperation = top.blend;
+      below.ctx.drawImage(top.canvas, 0, 0);
+      below.ctx.restore();
+      p.layers.splice(p.activeLayerIndex, 1);
+      p.activeLayerIndex--;
+      renderLayerStack();
+      refreshAllViews();
+      showToast('Merged layer down');
+    });
+    document.getElementById('layerBlendSelect').addEventListener('change', e => {
+      const l = getActiveLayer();
+      if (l) { l.blend = e.target.value; refreshAllViews(); }
+    });
+    document.getElementById('layerOpacitySlider').addEventListener('input', e => {
+      const l = getActiveLayer();
+      if (l) {
+        l.opacity = Number(e.target.value) / 100;
+        document.getElementById('layerOpacityVal').textContent = `${e.target.value}%`;
+        renderLayerStack();
+        refreshAllViews();
+      }
+    });
+    document.getElementById('clearLayerBtn').addEventListener('click', () => {
+      const l = getActiveLayer();
+      if (l && !l.locked) {
+        l.ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+        refreshAllViews();
+        showToast(`Cleared "${l.name}"`);
+      }
+    });
+
+    // Rendering Engine Controls
+    document.getElementById('renderStyleSelect').addEventListener('change', e => {
+      getActivePanel().renderGrade = e.target.value;
+      refreshAllViews();
+    });
+    document.getElementById('renderIntensitySlider').addEventListener('input', e => {
+      getActivePanel().renderIntensity = Number(e.target.value) / 100;
+      document.getElementById('renderIntensityVal').textContent = `${e.target.value}%`;
+      refreshAllViews();
+    });
+    document.getElementById('rimLightSlider').addEventListener('input', e => {
+      getActivePanel().rimLight = Number(e.target.value) / 100;
+      document.getElementById('rimLightVal').textContent = `${e.target.value}%`;
+      refreshAllViews();
+    });
+    document.getElementById('autoShadeBtn').addEventListener('click', () => {
+      const p = getActivePanel();
+      p.renderGrade = 'manhwa';
+      p.renderIntensity = 0.75;
+      p.rimLight = 0.55;
+      document.getElementById('renderStyleSelect').value = 'manhwa';
+      refreshAllViews();
+      showToast('Applied Korean Manhwa Rim & Bloom lighting pass!');
+    });
+
+    // Panel Layout Presets
+    document.querySelectorAll('.layout-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        getActivePanel().frameLayout = btn.dataset.layout;
+        refreshAllViews();
+      });
+    });
+
+    // Perspective & Grid Toggles
+    document.querySelectorAll('.persp-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.perspectiveMode = btn.dataset.persp;
+        document.querySelectorAll('.persp-btn').forEach(b => b.classList.remove('bg-lavender/20', 'text-lavender', 'font-semibold'));
+        btn.classList.add('bg-lavender/20', 'text-lavender', 'font-semibold');
+        renderOverlay();
+      });
+    });
+    document.getElementById('toggleGridCheck').addEventListener('change', e => { state.showGrid = e.target.checked; renderOverlay(); });
+    document.getElementById('toggleRulersCheck').addEventListener('change', e => { state.showRulers = e.target.checked; renderRulers(); });
+    document.getElementById('toggle3DOverlayCheck').addEventListener('change', e => { state.show3DOverlay = e.target.checked; renderOverlay(); });
+
+    // Zoom Buttons
+    document.getElementById('zoomInBtn').addEventListener('click', () => { state.zoom = Math.min(2.2, state.zoom + 0.1); updateStageTransform(); });
+    document.getElementById('zoomOutBtn').addEventListener('click', () => { state.zoom = Math.max(0.25, state.zoom - 0.1); updateStageTransform(); });
+    document.getElementById('zoomFitBtn').addEventListener('click', () => { state.zoom = 0.72; state.panX = 0; state.panY = 0; updateStageTransform(); });
+
+    // History Dropdown
+    document.getElementById('historyDropdownBtn').addEventListener('click', () => {
+      document.getElementById('historyDropdown').classList.toggle('hidden');
+    });
+
+    // Timeline Panel Buttons
+    document.getElementById('addPanelBtn').addEventListener('click', () => {
+      const np = createPanel(`Panel 0${state.panels.length + 1}`);
+      state.panels.push(np);
+      state.activePanelIndex = state.panels.length - 1;
+      renderLayerStack();
+      refreshAllViews();
+      showToast('Added new panel to episode');
+    });
+    document.getElementById('sbAddPanelBtn').addEventListener('click', () => {
+      document.getElementById('addPanelBtn').click();
+      renderStoryboardView();
+    });
+    document.getElementById('dupPanelBtn').addEventListener('click', () => {
+      const cur = getActivePanel();
+      const dup = createPanel(`${cur.title} (Copy)`, cur.notes, cur.shotType, cur.dialogueScript);
+      cur.layers.forEach((l, i) => dup.layers[i].ctx.drawImage(l.canvas, 0, 0));
+      dup.objects = JSON.parse(JSON.stringify(cur.objects));
+      dup.frameLayout = cur.frameLayout;
+      dup.renderGrade = cur.renderGrade;
+      state.panels.splice(state.activePanelIndex + 1, 0, dup);
+      state.activePanelIndex++;
+      refreshAllViews();
+      showToast('Duplicated panel');
+    });
+    document.getElementById('movePanelLeftBtn').addEventListener('click', () => {
+      if (state.activePanelIndex <= 0) return;
+      const i = state.activePanelIndex;
+      [state.panels[i - 1], state.panels[i]] = [state.panels[i], state.panels[i - 1]];
+      state.activePanelIndex--;
+      refreshAllViews();
+    });
+    document.getElementById('movePanelRightBtn').addEventListener('click', () => {
+      if (state.activePanelIndex >= state.panels.length - 1) return;
+      const i = state.activePanelIndex;
+      [state.panels[i + 1], state.panels[i]] = [state.panels[i], state.panels[i + 1]];
+      state.activePanelIndex++;
+      refreshAllViews();
+    });
+    document.getElementById('delPanelBtn').addEventListener('click', () => {
+      if (state.panels.length <= 1) { showToast('Episode needs at least 1 panel'); return; }
+      state.panels.splice(state.activePanelIndex, 1);
+      state.activePanelIndex = Math.max(0, state.activePanelIndex - 1);
+      renderLayerStack();
+      refreshAllViews();
+    });
+
+    // 3D Pose Studio Sliders & Presets
+    const bind3DSlider = (id, key, lblId) => {
+      document.getElementById(id).addEventListener('input', e => {
+        state.pose3D[key] = Number(e.target.value);
+        document.getElementById(lblId).textContent = `${e.target.value}°`;
+        refresh3DPoseStudio();
+        renderOverlay();
+      });
+    };
+    bind3DSlider('camYawSlider', 'yaw', 'camYawVal');
+    bind3DSlider('camPitchSlider', 'pitch', 'camPitchVal');
+    bind3DSlider('jointHeadSlider', 'head', 'jointHeadVal');
+    bind3DSlider('jointRArmSlider', 'rArm', 'jointRArmVal');
+    bind3DSlider('jointLArmSlider', 'lArm', 'jointLArmVal');
+    bind3DSlider('jointTorsoSlider', 'torso', 'jointTorsoVal');
+
+    document.querySelectorAll('.body-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.pose3D.body = btn.dataset.body;
+        refresh3DPoseStudio();
+      });
+    });
+
+    document.querySelectorAll('#posePresetButtons button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const presets = {
+          standing: { yaw: 15, pitch: 5, head: 0, rArm: 10, lArm: -10, torso: 0 },
+          lookback: { yaw: 145, pitch: 8, head: -40, rArm: 15, lArm: -20, torso: -25 },
+          phone: { yaw: 25, pitch: 10, head: 15, rArm: 105, lArm: -10, torso: 5 },
+          dramatic: { yaw: -35, pitch: -15, head: 20, rArm: 130, lArm: 65, torso: 18 },
+          walking: { yaw: 45, pitch: 6, head: 5, rArm: -40, lArm: 45, torso: 10 },
+          confession: { yaw: 10, pitch: 5, head: 12, rArm: 95, lArm: 85, torso: 0 }
+        };
+        Object.assign(state.pose3D, presets[btn.dataset.pose]);
+        refresh3DPoseStudio();
+      });
+    });
+
+    // Drag to orbit 3D Mannequin
+    let dragging3D = false, last3DX = 0;
+    const p3Canvas = document.getElementById('pose3DCanvas');
+    p3Canvas.addEventListener('pointerdown', e => { dragging3D = true; last3DX = e.clientX; });
+    window.addEventListener('pointermove', e => {
+      if (!dragging3D) return;
+      state.pose3D.yaw = ((state.pose3D.yaw + (e.clientX - last3DX) * 0.6 + 540) % 360) - 180;
+      last3DX = e.clientX;
+      document.getElementById('camYawSlider').value = Math.round(state.pose3D.yaw);
+      document.getElementById('camYawVal').textContent = `${Math.round(state.pose3D.yaw)}°`;
+      refresh3DPoseStudio();
+    });
+    window.addEventListener('pointerup', () => { dragging3D = false; });
+
+    document.getElementById('enableGhostOverlayBtn').addEventListener('click', () => {
+      state.show3DOverlay = true;
+      document.getElementById('toggle3DOverlayCheck').checked = true;
+      switchWorkspaceMode('studio');
+      showToast('3D Mannequin Tracing Guide enabled on 2D canvas');
+    });
+    document.getElementById('stampPoseToCanvasBtn').addEventListener('click', () => {
+      render3DMannequin(getActiveLayer().ctx, CANVAS_W / 2, CANVAS_H * 0.52, 1.35);
+      switchWorkspaceMode('studio');
+      showToast('Imported 3D mannequin lines to active layer');
+    });
+
+    // Character Lab Bindings
+    ['charFaceSelect', 'charEyesSelect', 'charBrowsSelect', 'charExprSelect', 'charHairSelect', 'charOutfitSelect',
+     'charSkinColor', 'charHairColor', 'charEyeColor', 'charOutfitColor', 'charGlassesCheck'].forEach(id => {
+      document.getElementById(id).addEventListener('change', refreshCharacterPreview);
+    });
+    document.getElementById('stampCharacterBtn').addEventListener('click', () => {
+      const cfg = getCharacterFormConfig();
+      drawWebtoonCharacter(getActivePanel().layers[1].ctx, cfg, 400, 560, 1.4);
+      switchWorkspaceMode('studio');
+      pushHistory(`Added Character: ${cfg.name}`);
+      showToast(`${cfg.name} placed onto Character Layer!`);
+    });
+    document.getElementById('saveCharacterPresetBtn').addEventListener('click', () => {
+      const cfg = getCharacterFormConfig();
+      state.savedCharacters.push(cfg);
+      renderSavedCharactersList();
+      renderQuickCast();
+      showToast(`Saved ${cfg.name} to Cast Wardrobe`);
+    });
+    document.getElementById('jumpToCharLabBtn').addEventListener('click', () => switchWorkspaceMode('character'));
+
+    // Academy Banner Controls
+    document.getElementById('closeAcademyBanner').addEventListener('click', () => {
+      state.activeAcademyLesson = null;
+      document.getElementById('academyBanner').classList.add('hidden');
+      renderOverlay();
+    });
+    document.getElementById('academyGuideOpacity').addEventListener('input', e => {
+      state.academyOpacity = Number(e.target.value) / 100;
+      renderOverlay();
+    });
+    document.getElementById('nextAcademyStepBtn').addEventListener('click', () => {
+      const idx = ACADEMY_LESSONS.findIndex(l => l.id === state.activeAcademyLesson?.id);
+      const next = ACADEMY_LESSONS[(idx + 1) % ACADEMY_LESSONS.length];
+      state.activeAcademyLesson = next;
+      if (!state.completedLessons.includes(next.id)) state.completedLessons.push(next.id);
+      document.getElementById('academyLessonTitle').textContent = next.title;
+      document.getElementById('academyLessonDesc').textContent = next.desc;
+      renderOverlay();
+    });
+
+    // Project / Episode Title Inputs
+    document.getElementById('projectTitleInput').addEventListener('input', e => { state.projectTitle = e.target.value; triggerAutosave(); });
+    document.getElementById('episodeTitleInput').addEventListener('input', e => { state.episodeTitle = e.target.value; triggerAutosave(); });
+
+    // Export Modal & Download HTML Studio
+    document.getElementById('openExportBtn').addEventListener('click', openExportStudio);
+    document.getElementById('readerExportBtn').addEventListener('click', openExportStudio);
+    document.getElementById('closeExportModalBtn').addEventListener('click', () => document.getElementById('exportModal').classList.add('hidden'));
+    document.getElementById('exportFormatSelect').addEventListener('change', updateExportStats);
+    document.getElementById('exportDpiSelect').addEventListener('change', updateExportStats);
+    document.getElementById('startExportBtn').addEventListener('click', executeExport);
+
+    document.getElementById('downloadStudioHtmlBtn').addEventListener('click', () => {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      triggerBlobDownload(new Blob([htmlContent], { type: 'text/html' }), 'atelier-seoul-webtoon-studio.html');
+      showToast('Downloaded standalone ATELIER SEOUL HTML Studio!');
+    });
+
+    window.addEventListener('resize', renderRulers);
+  }
+
+  // -------------------- BOOTSTRAP STUDIO --------------------
+  initDefaultEpisode();
+  bindEvents();
+  renderBrushLibrary('all');
+  renderLayerStack();
+  renderBackgroundLibrary();
+  renderQuickCast();
+  renderGenrePalettes();
+  renderHistoryDropdown();
+  updateStageTransform();
+  refreshAllViews();
+
+})();
+</script>
+</body>
+</html>
